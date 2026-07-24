@@ -217,7 +217,7 @@ QUOTES = [
 
 def daily_greeting():
     now = datetime.now(KST)
-    greeting = f"☀️ 좋은 아침입니다! {WEEKDAY_MSG[now.weekday()]}"
+    greeting = f"좋은 아침입니다! {WEEKDAY_MSG[now.weekday()]}"
     quote = QUOTES[now.timetuple().tm_yday % len(QUOTES)]
     return greeting, quote
 
@@ -261,7 +261,7 @@ def build_html(cfg, articles):
 
   <div style="padding:2px 2px 4px 2px;margin:0 0 12px 0;">
     <div class="t-head" style="font-family:{F_BOLD};font-size:15px;color:#12263f;">{greeting}</div>
-    <div style="font-family:{F_THIN};font-size:12px;color:#555555;margin-top:6px;">💡 오늘의 한마디 — {quote}</div>
+    <div style="font-family:{F_THIN};font-size:14px;color:#555555;margin-top:6px;">오늘의 한마디 — {quote}</div>
   </div>
 
   <div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:6px 0 10px 0;">○ 부동산 개발 ICT 테크 뉴스 스크랩</div>
