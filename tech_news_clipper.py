@@ -69,61 +69,63 @@ def search_news(cfg):
     seen_links, seen_titles = set(), set()
     collected = []
 
-    for keyword in clip["keywords"]:
-        url = (
-            "https://openapi.naver.com/v1/search/news.json?"
-            + urllib.parse.urlencode(
-                {"query": keyword, "display": clip["perKeyword"], "start": 1, "sort": "date"}
+    for cat in clip["categories"]:
+        cat_name = cat["name"]
+        for keyword in cat["keywords"]:
+            url = (
+                "https://openapi.naver.com/v1/search/news.json?"
+                + urllib.parse.urlencode(
+                    {"query": keyword, "display": clip["perKeyword"], "start": 1, "sort": "date"}
+                )
             )
-        )
-        req = urllib.request.Request(url, headers={
-            "X-Naver-Client-Id": naver["clientId"],
-            "X-Naver-Client-Secret": naver["clientSecret"],
-        })
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except Exception as e:
-            log(f"'{keyword}' 검색 실패: {e}")
-            continue
-
-        kept = 0
-        for item in data.get("items", []):
-            if kept >= clip["maxPerKeyword"]:
-                break
-
-            title = clean_text(item.get("title"))
-            desc = clean_text(item.get("description"))
-
-            try:
-                pub = parsedate_to_datetime(item.get("pubDate"))
-                if pub.tzinfo is None:
-                    pub = pub.replace(tzinfo=KST)
-            except Exception:
-                continue
-            if pub < cutoff:
-                continue
-
-            link = item.get("originallink") or item.get("link") or ""
-            title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
-            if link in seen_links or title_key in seen_titles:
-                continue
-
-            if any(ex and ex in title for ex in clip["excludeKeywords"]):
-                continue
-
-            seen_links.add(link)
-            seen_titles.add(title_key)
-            kept += 1
-
-            domain = get_domain(link)
-            score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
-
-            collected.append({
-                "keyword": keyword, "title": title, "desc": desc,
-                "link": link, "pub": pub, "domain": domain, "score": score,
+            req = urllib.request.Request(url, headers={
+                "X-Naver-Client-Id": naver["clientId"],
+                "X-Naver-Client-Secret": naver["clientSecret"],
             })
-        log(f"'{keyword}' → {kept} 건")
+            try:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+            except Exception as e:
+                log(f"[{cat_name}] '{keyword}' 검색 실패: {e}")
+                continue
+
+            kept = 0
+            for item in data.get("items", []):
+                if kept >= clip["maxPerKeyword"]:
+                    break
+
+                title = clean_text(item.get("title"))
+                desc = clean_text(item.get("description"))
+
+                try:
+                    pub = parsedate_to_datetime(item.get("pubDate"))
+                    if pub.tzinfo is None:
+                        pub = pub.replace(tzinfo=KST)
+                except Exception:
+                    continue
+                if pub < cutoff:
+                    continue
+
+                link = item.get("originallink") or item.get("link") or ""
+                title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
+                if link in seen_links or title_key in seen_titles:
+                    continue
+
+                if any(ex and ex in title for ex in clip["excludeKeywords"]):
+                    continue
+
+                seen_links.add(link)
+                seen_titles.add(title_key)
+                kept += 1
+
+                domain = get_domain(link)
+                score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
+
+                collected.append({
+                    "category": cat_name, "keyword": keyword, "title": title, "desc": desc,
+                    "link": link, "pub": pub, "domain": domain, "score": score,
+                })
+            log(f"[{cat_name}] '{keyword}' → {kept} 건")
 
     collected.sort(key=lambda a: (a["score"], a["pub"]), reverse=True)
     return collected[: cfg["clipping"]["maxTotal"]]
@@ -155,58 +157,66 @@ def press_name(domain):
     return domain
 
 
+# KT Flow 서체 (수신 PC에 설치돼 있으면 적용, 없으면 맑은 고딕으로 대체)
+F_BOLD = "'KT Flow Bold','Malgun Gothic',sans-serif"
+F_MEDIUM = "'KT Flow Medium','Malgun Gothic',sans-serif"
+F_THIN = "'KT Flow Thin','Malgun Gothic',sans-serif"
+
+
 def build_html(cfg, articles):
     e = html.escape
     today = datetime.now(KST).strftime("%Y년 %m월 %d일")
     n = len(articles)
 
-    # 설정 순서를 유지한 키워드별 그룹
-    groups = {kw: [] for kw in cfg["clipping"]["keywords"]}
+    # 설정에 정의된 4개 카테고리 순서를 유지한 그룹
+    cat_order = [c["name"] for c in cfg["clipping"]["categories"]]
+    groups = {name: [] for name in cat_order}
     for a in articles:
-        groups.setdefault(a["keyword"], []).append(a)
-    groups = {k: v for k, v in groups.items() if v}
+        groups.setdefault(a["category"], []).append(a)
+    groups = {name: groups[name] for name in cat_order if groups.get(name)}
 
     C_HEAD = "#c9c9c9"   # 회색 헤더
-    C_SUB = "#e9e9e9"    # 섹션 소제목
+    C_SUB = "#e9e9e9"    # 카테고리 소제목
     B = "1px solid #000000"
 
     parts = [f"""<html><head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#ffffff;">
-<div style="max-width:860px;margin:0 auto;padding:20px 16px;font-family:'맑은 고딕','Malgun Gothic',Arial,sans-serif;color:#111111;">
+<div style="max-width:860px;margin:0 auto;padding:20px 16px;font-family:{F_MEDIUM};color:#111111;">
 
-  <div style="font-size:17px;font-weight:bold;margin:6px 0 10px 0;">○ 부동산 개발 테크 뉴스 스크랩</div>
+  <div style="font-size:18px;font-family:{F_BOLD};margin:6px 0 10px 0;">○ 부동산 개발 ICT 테크 뉴스 스크랩</div>
 
   <table cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">
     <tr>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:56px;">1~{n}</td>
-      <td bgcolor="{C_HEAD}" colspan="3" style="border:{B};padding:7px 10px;text-align:center;font-weight:bold;">부동산 개발 테크 뉴스 · {today}</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:56px;">1~{n}</td>
+      <td bgcolor="{C_HEAD}" colspan="3" style="border:{B};padding:7px 10px;text-align:center;font-family:{F_BOLD};">부동산 개발 ICT 테크 뉴스 · {today}</td>
     </tr>
     <tr>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:56px;">페이지</td>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 10px;text-align:center;font-weight:bold;">기사제목</td>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:110px;">매체명</td>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:110px;">비고</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:56px;">페이지</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 10px;text-align:center;font-family:{F_BOLD};">기사제목</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:110px;">매체명</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:110px;">비고</td>
     </tr>"""]
 
     seq = 1
     insight_pool = []
-    for kw, items in groups.items():
+    for cat_name, items in groups.items():
         items = sorted(items, key=lambda a: a["pub"], reverse=True)
         parts.append(
             f'<tr><td bgcolor="{C_SUB}" colspan="4" '
-            f'style="border:{B};padding:6px 8px;font-weight:bold;">&lt;{e(kw)} 관련기사&gt;</td></tr>'
+            f'style="border:{B};padding:6px 8px;font-family:{F_BOLD};">&lt;{e(cat_name)}&gt; '
+            f'<span style="font-family:{F_THIN};color:#555555;">({len(items)})</span></td></tr>'
         )
         for a in items:
             when = a["pub"].strftime("%m/%d %H:%M")
             press = press_name(a["domain"])
             parts.append(f"""
       <tr>
-        <td style="border:{B};padding:6px;text-align:center;">{seq}</td>
-        <td style="border:{B};padding:6px 10px;line-height:1.5;">
+        <td style="border:{B};padding:6px;text-align:center;font-family:{F_THIN};">{seq}</td>
+        <td style="border:{B};padding:6px 10px;line-height:1.5;font-family:{F_MEDIUM};">
           <a href="{e(a['link'])}" style="color:#111111;text-decoration:none;">{e(a['title'])}</a>
         </td>
-        <td style="border:{B};padding:6px;text-align:center;">{e(press)}</td>
-        <td style="border:{B};padding:6px;text-align:center;color:#333333;">{when}</td>
+        <td style="border:{B};padding:6px;text-align:center;font-family:{F_MEDIUM};">{e(press)}</td>
+        <td style="border:{B};padding:6px;text-align:center;font-family:{F_THIN};color:#333333;">{when}</td>
       </tr>""")
             insight_pool.append(a)
             seq += 1
@@ -219,7 +229,7 @@ def build_html(cfg, articles):
         top = sorted(insight_pool, key=lambda a: (a["score"], a["pub"]), reverse=True)[:k]
         if top:
             parts.append(
-                '<div style="font-size:17px;font-weight:bold;margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
+                f'<div style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
                 f'<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
             )
             for i, a in enumerate(top, 1):
@@ -229,17 +239,17 @@ def build_html(cfg, articles):
                 press = press_name(a["domain"])
                 parts.append(f"""
       <tr>
-        <td style="border:{B};padding:9px 6px;text-align:center;vertical-align:top;width:36px;font-weight:bold;">{i}</td>
+        <td style="border:{B};padding:9px 6px;text-align:center;vertical-align:top;width:36px;font-family:{F_BOLD};">{i}</td>
         <td style="border:{B};padding:9px 12px;line-height:1.6;">
-          <a href="{e(a['link'])}" style="color:#12263f;font-weight:bold;text-decoration:none;">{e(a['title'])}</a>
-          <span style="color:#888888;">&nbsp;({e(press)})</span>
-          <div style="color:#333333;margin-top:5px;">{e(desc)}</div>
+          <a href="{e(a['link'])}" style="color:#12263f;font-family:{F_BOLD};text-decoration:none;">{e(a['title'])}</a>
+          <span style="font-family:{F_THIN};color:#888888;">&nbsp;({e(press)})</span>
+          <div style="font-family:{F_MEDIUM};color:#333333;margin-top:5px;">{e(desc)}</div>
         </td>
       </tr>""")
             parts.append("</table>")
 
     parts.append(f"""
-  <div style="font-size:11px;color:#999999;margin-top:14px;">
+  <div style="font-size:11px;font-family:{F_THIN};color:#999999;margin-top:14px;">
     네이버 검색 API 기반 자동 수집 · 최근 {cfg['clipping']['withinHours']}시간 · 총 {n}건 · 생성 {datetime.now(KST):%Y-%m-%d %H:%M} (KST)<br>
     ※ '비고'는 지면정보 대신 발행시각을 표기합니다.
   </div>
@@ -292,7 +302,9 @@ def main():
             "GitHub 저장소 Settings → Secrets → Actions 에 "
             "NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 을 정확한 이름으로 등록했는지 확인하세요.")
 
-    log(f"클리핑 시작 (키워드 {len(cfg['clipping']['keywords'])}개)")
+    cats = cfg["clipping"]["categories"]
+    kw_total = sum(len(c["keywords"]) for c in cats)
+    log(f"클리핑 시작 (카테고리 {len(cats)}개 / 키워드 {kw_total}개)")
     articles = search_news(cfg)
 
     if not articles:
