@@ -187,6 +187,40 @@ F_BOLD = "'KT Flow Bold','Malgun Gothic',sans-serif"
 F_MEDIUM = "'KT Flow Medium','Malgun Gothic',sans-serif"
 F_THIN = "'KT Flow Thin','Malgun Gothic',sans-serif"
 
+# 요일별 인사말 (0=월 … 6=일)
+WEEKDAY_MSG = {
+    0: "새로운 한 주가 시작됐어요. 활기차게 출발해볼까요?",
+    1: "화요일입니다. 좋은 흐름 그대로 이어가요!",
+    2: "벌써 한 주의 절반, 수요일이에요. 조금만 더 힘내세요!",
+    3: "목요일입니다. 주말이 성큼 다가왔어요!",
+    4: "금요일이에요! 한 주 잘 마무리하고 즐거운 주말 맞으세요.",
+    5: "여유로운 토요일입니다. 오늘도 좋은 하루 되세요.",
+    6: "일요일이에요. 편안하고 든든한 하루 보내세요.",
+}
+
+# 오늘의 한마디 (인생격언) — 날짜에 따라 하나씩 순환
+QUOTES = [
+    "\"시작이 반이다.\" — 아리스토텔레스",
+    "\"오늘 할 수 있는 일에 집중하라.\" — 파울로 코엘료",
+    "\"천 리 길도 한 걸음부터.\" — 노자",
+    "\"성공은 매일 반복한 작은 노력의 합이다.\" — 로버트 콜리어",
+    "\"할 수 있다고 믿으면 이미 절반은 이룬 것이다.\" — 시어도어 루스벨트",
+    "\"기회는 준비된 사람에게 온다.\" — 루이 파스퇴르",
+    "\"어제보다 나은 오늘이면 충분하다.\"",
+    "\"느리게 가도 괜찮다. 멈추지만 않는다면.\" — 공자",
+    "\"행동은 모든 성공의 기초다.\" — 파블로 피카소",
+    "\"작은 기회로부터 위대한 일이 시작된다.\" — 데모스테네스",
+    "\"가장 좋은 때는 바로 지금이다.\"",
+    "\"긍정적인 생각이 긍정적인 하루를 만든다.\"",
+]
+
+
+def daily_greeting():
+    now = datetime.now(KST)
+    greeting = f"☀️ 좋은 아침입니다! {WEEKDAY_MSG[now.weekday()]}"
+    quote = QUOTES[now.timetuple().tm_yday % len(QUOTES)]
+    return greeting, quote
+
 
 def build_html(cfg, articles):
     e = html.escape
@@ -203,6 +237,7 @@ def build_html(cfg, articles):
     C_HEAD = "#c9c9c9"   # 회색 헤더
     C_SUB = "#e9e9e9"    # 카테고리 소제목
     B = "1px solid #000000"
+    greeting, quote = daily_greeting()
 
     parts = [f"""<html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -223,6 +258,11 @@ def build_html(cfg, articles):
 <td align="center" class="wrap" style="padding:18px 12px;">
 <!--[if mso]><table role="presentation" width="860" cellspacing="0" cellpadding="0"><tr><td><![endif]-->
 <div class="container" style="max-width:860px;margin:0 auto;text-align:left;font-family:{F_MEDIUM};color:#111111;">
+
+  <div style="border:1.5px solid #000000;background:#eef3f8;padding:12px 14px;margin:0 0 14px 0;">
+    <div class="t-head" style="font-family:{F_BOLD};font-size:15px;color:#12263f;">{greeting}</div>
+    <div style="font-family:{F_THIN};font-size:12px;color:#555555;margin-top:6px;">💡 오늘의 한마디 — {quote}</div>
+  </div>
 
   <div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:6px 0 10px 0;">○ 부동산 개발 ICT 테크 뉴스 스크랩</div>
 
