@@ -206,8 +206,21 @@ def send_mail(cfg, subject, body_html):
 
 def main():
     cfg = load_config()
-    if not cfg["naver"]["clientId"] or cfg["naver"]["clientId"].startswith("YOUR_"):
-        raise SystemExit("네이버 clientId 가 설정되지 않았습니다 (환경변수 NAVER_CLIENT_ID).")
+
+    # 진단: 각 Secret 이 전달됐는지(값은 노출하지 않고 길이만) 출력
+    def present(v):
+        return f"있음(len={len(v)})" if v else "❌ 없음/빈값"
+    log("Secret 확인 → "
+        f"NAVER_CLIENT_ID: {present(os.environ.get('NAVER_CLIENT_ID',''))}, "
+        f"NAVER_CLIENT_SECRET: {present(os.environ.get('NAVER_CLIENT_SECRET',''))}, "
+        f"SMTP_PASSWORD: {present(os.environ.get('SMTP_PASSWORD',''))}")
+
+    cid = cfg["naver"]["clientId"]
+    if not cid or cid.startswith("YOUR_") or cid == "SET_VIA_GITHUB_SECRET":
+        raise SystemExit(
+            "네이버 clientId 가 설정되지 않았습니다. "
+            "GitHub 저장소 Settings → Secrets → Actions 에 "
+            "NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 을 정확한 이름으로 등록했는지 확인하세요.")
 
     log(f"클리핑 시작 (키워드 {len(cfg['clipping']['keywords'])}개)")
     articles = search_news(cfg)
