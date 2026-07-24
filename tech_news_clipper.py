@@ -259,7 +259,7 @@ def build_html(cfg, articles):
 <!--[if mso]><table role="presentation" width="860" cellspacing="0" cellpadding="0"><tr><td><![endif]-->
 <div class="container" style="max-width:860px;margin:0 auto;text-align:left;font-family:{F_MEDIUM};color:#111111;">
 
-  <div style="border:1.5px solid #000000;background:#eef3f8;padding:12px 14px;margin:0 0 14px 0;">
+  <div style="padding:2px 2px 4px 2px;margin:0 0 12px 0;">
     <div class="t-head" style="font-family:{F_BOLD};font-size:15px;color:#12263f;">{greeting}</div>
     <div style="font-family:{F_THIN};font-size:12px;color:#555555;margin-top:6px;">💡 오늘의 한마디 — {quote}</div>
   </div>
