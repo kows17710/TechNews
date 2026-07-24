@@ -204,22 +204,38 @@ def build_html(cfg, articles):
     C_SUB = "#e9e9e9"    # 카테고리 소제목
     B = "1px solid #000000"
 
-    parts = [f"""<html><head><meta charset="utf-8"></head>
+    parts = [f"""<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @media only screen and (max-width:600px) {{
+    .wrap {{ padding:10px 6px !important; }}
+    .t-head {{ font-size:15px !important; }}
+    table.clip {{ font-size:11px !important; }}
+    .c {{ padding:4px 5px !important; }}
+    .c-press, .c-note {{ font-size:10px !important; }}
+    .c-num {{ width:24px !important; }}
+    .c-press {{ width:64px !important; }}
+    .c-note {{ width:58px !important; }}
+  }}
+</style></head>
 <body style="margin:0;padding:0;background:#ffffff;">
-<div style="max-width:860px;margin:0 auto;padding:20px 16px;font-family:{F_MEDIUM};color:#111111;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;"><tr>
+<td align="center" class="wrap" style="padding:18px 12px;">
+<!--[if mso]><table role="presentation" width="860" cellspacing="0" cellpadding="0"><tr><td><![endif]-->
+<div class="container" style="max-width:860px;margin:0 auto;text-align:left;font-family:{F_MEDIUM};color:#111111;">
 
-  <div style="font-size:18px;font-family:{F_BOLD};margin:6px 0 10px 0;">○ 부동산 개발 ICT 테크 뉴스 스크랩</div>
+  <div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:6px 0 10px 0;">○ 부동산 개발 ICT 테크 뉴스 스크랩</div>
 
-  <table cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">
+  <table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">
     <tr>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:56px;">1~{n}</td>
-      <td bgcolor="{C_HEAD}" colspan="3" style="border:{B};padding:7px 10px;text-align:center;font-family:{F_BOLD};">부동산 개발 ICT 테크 뉴스 · {today}</td>
+      <td class="c c-num" bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:56px;">1~{n}</td>
+      <td class="c" bgcolor="{C_HEAD}" colspan="3" style="border:{B};padding:7px 10px;text-align:center;font-family:{F_BOLD};">부동산 개발 ICT 테크 뉴스 · {today}</td>
     </tr>
     <tr>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:56px;">페이지</td>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 10px;text-align:center;font-family:{F_BOLD};">기사제목</td>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:110px;">매체명</td>
-      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:110px;">비고</td>
+      <td class="c c-num" bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:56px;">페이지</td>
+      <td class="c" bgcolor="{C_HEAD}" style="border:{B};padding:7px 10px;text-align:center;font-family:{F_BOLD};">기사제목</td>
+      <td class="c c-press" bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:110px;">매체명</td>
+      <td class="c c-note" bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-family:{F_BOLD};width:110px;">비고</td>
     </tr>"""]
 
     seq = 1
@@ -227,7 +243,7 @@ def build_html(cfg, articles):
     for cat_name, items in groups.items():
         items = sorted(items, key=lambda a: a["pub"], reverse=True)
         parts.append(
-            f'<tr><td bgcolor="{C_SUB}" colspan="4" '
+            f'<tr><td class="c" bgcolor="{C_SUB}" colspan="4" '
             f'style="border:{B};padding:6px 8px;font-family:{F_BOLD};">&lt;{e(cat_name)}&gt; '
             f'<span style="font-family:{F_THIN};color:#555555;">({len(items)})</span></td></tr>'
         )
@@ -236,12 +252,12 @@ def build_html(cfg, articles):
             press = press_name(a["domain"])
             parts.append(f"""
       <tr>
-        <td style="border:{B};padding:6px;text-align:center;font-family:{F_THIN};">{seq}</td>
-        <td style="border:{B};padding:6px 10px;line-height:1.5;font-family:{F_MEDIUM};">
+        <td class="c c-num" style="border:{B};padding:6px;text-align:center;font-family:{F_THIN};">{seq}</td>
+        <td class="c" style="border:{B};padding:6px 10px;line-height:1.5;font-family:{F_MEDIUM};">
           <a href="{e(a['link'])}" style="color:#111111;text-decoration:none;">{e(a['title'])}</a>
         </td>
-        <td style="border:{B};padding:6px;text-align:center;font-family:{F_MEDIUM};">{e(press)}</td>
-        <td style="border:{B};padding:6px;text-align:center;font-family:{F_THIN};color:#333333;">{when}</td>
+        <td class="c c-press" style="border:{B};padding:6px;text-align:center;font-family:{F_MEDIUM};">{e(press)}</td>
+        <td class="c c-note" style="border:{B};padding:6px;text-align:center;font-family:{F_THIN};color:#333333;">{when}</td>
       </tr>""")
             insight_pool.append(a)
             seq += 1
@@ -254,8 +270,8 @@ def build_html(cfg, articles):
         top = sorted(insight_pool, key=lambda a: (a["score"], a["pub"]), reverse=True)[:k]
         if top:
             parts.append(
-                f'<div style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
-                f'<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
+                f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
+                f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
             )
             for i, a in enumerate(top, 1):
                 desc = a["desc"]
@@ -264,8 +280,8 @@ def build_html(cfg, articles):
                 press = press_name(a["domain"])
                 parts.append(f"""
       <tr>
-        <td style="border:{B};padding:9px 6px;text-align:center;vertical-align:top;width:36px;font-family:{F_BOLD};">{i}</td>
-        <td style="border:{B};padding:9px 12px;line-height:1.6;">
+        <td class="c c-num" style="border:{B};padding:9px 6px;text-align:center;vertical-align:top;width:36px;font-family:{F_BOLD};">{i}</td>
+        <td class="c" style="border:{B};padding:9px 12px;line-height:1.6;">
           <a href="{e(a['link'])}" style="color:#12263f;font-family:{F_BOLD};text-decoration:none;">{e(a['title'])}</a>
           <span style="font-family:{F_THIN};color:#888888;">&nbsp;({e(press)})</span>
           <div style="font-family:{F_MEDIUM};color:#333333;margin-top:5px;">{e(desc)}</div>
@@ -279,6 +295,8 @@ def build_html(cfg, articles):
     ※ '비고'는 지면정보 대신 발행시각을 표기합니다.
   </div>
 </div>
+<!--[if mso]></td></tr></table><![endif]-->
+</td></tr></table>
 </body></html>""")
     return "".join(parts)
 
