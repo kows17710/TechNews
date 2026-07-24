@@ -291,8 +291,7 @@ def build_html(cfg, articles):
 
     parts.append(f"""
   <div style="font-size:11px;font-family:{F_THIN};color:#999999;margin-top:14px;">
-    네이버 검색 API 기반 자동 수집 · 최근 {cfg['clipping']['withinHours']}시간 · 총 {n}건 · 생성 {datetime.now(KST):%Y-%m-%d %H:%M} (KST)<br>
-    ※ '비고'는 지면정보 대신 발행시각을 표기합니다.
+    네이버 검색 API 기반 자동 수집 · 최근 {cfg['clipping']['withinHours']}시간 · 총 {n}건 · 생성 {datetime.now(KST):%Y-%m-%d %H:%M} (KST)
   </div>
 </div>
 <!--[if mso]></td></tr></table><![endif]-->
