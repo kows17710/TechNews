@@ -48,11 +48,18 @@ def get_domain(url):
 
 def title_matches(keyword, title):
     """키워드의 모든 토큰이 제목 안에 실제로 존재할 때만 True.
-    본문에만 스쳐 지나가는 무관한 기사(예: 갤럭시 기사 속 '스마트시티' 언급)를 걸러낸다."""
-    tnorm = re.sub(r"\s+", "", title).lower()
+    본문에만 스쳐 지나가는 무관한 기사(예: 갤럭시 기사 속 '스마트시티' 언급)를 걸러낸다.
+    라틴/숫자 토큰(KT, AI, ICT 등)은 단어경계로 매칭해 SKT·KTX 안의 'kt' 같은 오탐을 막는다."""
+    low = title.lower()
+    low_nospace = re.sub(r"\s+", "", low)
     for tok in keyword.split():
-        if re.sub(r"\s+", "", tok).lower() not in tnorm:
-            return False
+        t = tok.lower()
+        if re.fullmatch(r"[a-z0-9]+", t):
+            if not re.search(r"(?<![a-z0-9])" + re.escape(t) + r"(?![a-z0-9])", low):
+                return False
+        else:
+            if re.sub(r"\s+", "", t) not in low_nospace:
+                return False
     return True
 
 
