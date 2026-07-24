@@ -141,8 +141,19 @@ def search_news(cfg):
                 })
             log(f"[{cat_name}] '{keyword}' → {kept} 건")
 
+    # 선별: 점수·최신순 정렬 후, 카테고리별 상한을 지켜 전체 상한까지 채운다
     collected.sort(key=lambda a: (a["score"], a["pub"]), reverse=True)
-    return collected[: cfg["clipping"]["maxTotal"]]
+    max_total = int(clip["maxTotal"])
+    max_cat = int(clip.get("maxPerCategory", 0) or 0)
+    selected, cat_count = [], {}
+    for a in collected:
+        if len(selected) >= max_total:
+            break
+        if max_cat and cat_count.get(a["category"], 0) >= max_cat:
+            continue
+        selected.append(a)
+        cat_count[a["category"]] = cat_count.get(a["category"], 0) + 1
+    return selected
 
 
 # 도메인 → 매체명(한글) 매핑. 없으면 도메인 그대로 표기.
