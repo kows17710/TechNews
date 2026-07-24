@@ -1,0 +1,50 @@
+{
+  "naver": {
+    "clientId": "SET_VIA_GITHUB_SECRET",
+    "clientSecret": "SET_VIA_GITHUB_SECRET"
+  },
+  "mail": {
+    "to": "wonsik.ko@kt.com",
+    "cc": "",
+    "subjectPrefix": "[Tech News Clipping]"
+  },
+  "smtp": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "useStartTls": true,
+    "from": "kowonsik17710@gmail.com",
+    "fromDisplayName": "Tech News Bot",
+    "username": "kowonsik17710@gmail.com",
+    "passwordEnvVar": "TECHNEWS_SMTP_PWD"
+  },
+  "clipping": {
+    "keywords": [
+      "AI 반도체",
+      "생성형 AI",
+      "클라우드",
+      "데이터센터",
+      "로봇",
+      "자율주행"
+    ],
+    "perKeyword": 20,
+    "maxPerKeyword": 5,
+    "maxTotal": 25,
+    "withinHours": 24,
+    "excludeKeywords": [
+      "주가",
+      "코스피",
+      "부고",
+      "인사"
+    ],
+    "preferredPress": [
+      "zdnet.co.kr",
+      "etnews.com",
+      "thelec.kr",
+      "bloter.net",
+      "ddaily.co.kr",
+      "chosun.com",
+      "mk.co.kr",
+      "hankyung.com"
+    ]
+  }
+}

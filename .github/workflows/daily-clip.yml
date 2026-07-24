@@ -1,0 +1,32 @@
+name: Daily Tech News Clipping
+
+on:
+  schedule:
+    # GitHub Actions cron 은 UTC 기준. 08:00 KST = 23:00 UTC(전날).
+    - cron: "0 23 * * *"
+  workflow_dispatch: {}   # 저장소 Actions 탭에서 수동 실행 가능
+
+# 동시 실행 방지
+concurrency:
+  group: daily-clip
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run clipper
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: python tech_news_clipper.py
