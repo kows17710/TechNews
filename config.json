@@ -6,7 +6,7 @@
   "mail": {
     "to": "wonsik.ko@kt.com",
     "cc": "",
-    "subjectPrefix": "[Tech News Clipping]"
+    "subjectPrefix": "[Tech News]"
   },
   "smtp": {
     "host": "smtp.gmail.com",
