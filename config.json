@@ -4,7 +4,7 @@
     "clientSecret": "SET_VIA_GITHUB_SECRET"
   },
   "mail": {
-    "to": "wonsik.ko@kt.com",
+    "to": "wonsik.ko@kt.com, archinfo.lee@kt.com",
     "cc": "",
     "subjectPrefix": "[Tech News]"
   },
@@ -22,7 +22,7 @@
       { "name": "AI, 부동산 ICT", "keywords": ["부동산 AI", "스마트빌딩", "부동산 ICT"] },
       { "name": "스마트시티·건설", "keywords": ["스마트시티", "스마트 건설", "프롭테크"] },
       { "name": "스마트 공간(홈·오피스)", "keywords": ["스마트홈", "스마트오피스", "AI홈", "AI오피스"] },
-      { "name": "로봇", "keywords": ["로봇", "서빙로봇", "배송로봇", "안내로봇", "순찰로봇", "청소로봇"] },
+      { "name": "AI로봇", "keywords": ["로봇", "서빙로봇", "배송로봇", "안내로봇", "순찰로봇", "청소로봇"] },
       { "name": "부동산 개발·정책", "keywords": ["부동산 개발", "도시재생", "부동산 PF", "재건축", "재개발", "분양", "청약", "집값", "부동산 정책"] }
     ],
     "perKeyword": 40,
