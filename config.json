@@ -21,18 +21,22 @@
     "categories": [
       { "name": "부동산 개발·정책", "keywords": ["부동산 개발", "도시재생", "부동산 PF"] },
       { "name": "스마트시티·건설", "keywords": ["스마트시티", "스마트 건설", "프롭테크"] },
-      { "name": "스마트 공간(홈·오피스)", "keywords": ["스마트홈", "스마트오피스"] },
-      { "name": "AI 공간(홈·오피스)", "keywords": ["AI홈", "AI오피스"] }
+      { "name": "스마트 공간(홈·오피스)", "keywords": ["스마트홈", "스마트오피스", "AI홈", "AI오피스"] },
+      { "name": "기타 (AI·부동산 ICT)", "keywords": ["부동산 AI", "스마트빌딩", "부동산 ICT"] }
     ],
-    "perKeyword": 30,
+    "perKeyword": 40,
     "maxPerKeyword": 6,
     "maxTotal": 32,
     "withinHours": 24,
+    "requireKeywordInTitle": true,
     "excludeKeywords": [
       "부고",
       "인사",
       "포토",
-      "카드뉴스"
+      "카드뉴스",
+      "갤럭시",
+      "아이폰",
+      "스마트폰"
     ],
     "preferredPress": [
       "fnnews.com",

@@ -46,6 +46,16 @@ def get_domain(url):
         return ""
 
 
+def title_matches(keyword, title):
+    """키워드의 모든 토큰이 제목 안에 실제로 존재할 때만 True.
+    본문에만 스쳐 지나가는 무관한 기사(예: 갤럭시 기사 속 '스마트시티' 언급)를 걸러낸다."""
+    tnorm = re.sub(r"\s+", "", title).lower()
+    for tok in keyword.split():
+        if re.sub(r"\s+", "", tok).lower() not in tnorm:
+            return False
+    return True
+
+
 def load_config():
     path = os.path.join(HERE, "config.json")
     with open(path, "r", encoding="utf-8") as f:
@@ -104,6 +114,10 @@ def search_news(cfg):
                 except Exception:
                     continue
                 if pub < cutoff:
+                    continue
+
+                # 정확도: 키워드가 제목에 실제로 포함된 기사만 채택
+                if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
                     continue
 
                 link = item.get("originallink") or item.get("link") or ""
