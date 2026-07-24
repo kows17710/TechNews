@@ -129,49 +129,119 @@ def search_news(cfg):
     return collected[: cfg["clipping"]["maxTotal"]]
 
 
+# 도메인 → 매체명(한글) 매핑. 없으면 도메인 그대로 표기.
+PRESS_MAP = {
+    "fnnews.com": "파이낸셜뉴스", "dnews.co.kr": "대한경제", "sedaily.com": "서울경제",
+    "mk.co.kr": "매일경제", "hankyung.com": "한국경제", "asiae.co.kr": "아시아경제",
+    "donga.com": "동아일보", "chosun.com": "조선일보", "joongang.co.kr": "중앙일보",
+    "joins.com": "중앙일보", "etnews.com": "전자신문", "zdnet.co.kr": "ZDNet코리아",
+    "edaily.co.kr": "이데일리", "mt.co.kr": "머니투데이", "yna.co.kr": "연합뉴스",
+    "yonhapnews": "연합뉴스", "news1.kr": "뉴스1", "newsis.com": "뉴시스",
+    "heraldcorp.com": "헤럴드경제", "khan.co.kr": "경향신문", "hani.co.kr": "한겨레",
+    "seoul.co.kr": "서울신문", "kmib.co.kr": "국민일보", "hankookilbo.com": "한국일보",
+    "munhwa.com": "문화일보", "thelec.kr": "디일렉", "bloter.net": "블로터",
+    "ddaily.co.kr": "디지털데일리", "ajunews.com": "아주경제", "biz.chosun.com": "조선비즈",
+    "newspim.com": "뉴스핌", "ekn.kr": "에너지경제", "g-enews.com": "글로벌이코노믹",
+    "housingnews.co.kr": "하우징헤럴드", "r-news.co.kr": "리얼티뉴스", "ceoscoredaily.com": "CEO스코어데일리",
+}
+
+
+def press_name(domain):
+    if not domain:
+        return "-"
+    for key, name in PRESS_MAP.items():
+        if key in domain:
+            return name
+    return domain
+
+
 def build_html(cfg, articles):
     e = html.escape
-    within = cfg["clipping"]["withinHours"]
     today = datetime.now(KST).strftime("%Y년 %m월 %d일")
-    parts = [f"""<html><head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;background:#f4f5f7;">
-<div style="max-width:720px;margin:0 auto;padding:24px 16px;font-family:'맑은 고딕','Malgun Gothic',Arial,sans-serif;color:#1a1a1a;">
-  <div style="background:#ffffff;border:1px solid #e3e5e8;border-radius:10px;overflow:hidden;">
-    <div style="background:#12263f;padding:20px 24px;">
-      <div style="color:#ffffff;font-size:19px;font-weight:bold;">데일리 테크 뉴스 클리핑</div>
-      <div style="color:#9fb3c8;font-size:13px;margin-top:5px;">{today} &middot; 최근 {within}시간 · 총 {len(articles)}건</div>
-    </div>
-    <div style="padding:8px 24px 4px 24px;">"""]
+    n = len(articles)
 
-    # 키워드별 그룹
-    groups = {}
+    # 설정 순서를 유지한 키워드별 그룹
+    groups = {kw: [] for kw in cfg["clipping"]["keywords"]}
     for a in articles:
         groups.setdefault(a["keyword"], []).append(a)
+    groups = {k: v for k, v in groups.items() if v}
 
-    for kw in sorted(groups):
-        items = sorted(groups[kw], key=lambda a: a["pub"], reverse=True)
+    C_HEAD = "#c9c9c9"   # 회색 헤더
+    C_SUB = "#e9e9e9"    # 섹션 소제목
+    B = "1px solid #000000"
+
+    parts = [f"""<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#ffffff;">
+<div style="max-width:860px;margin:0 auto;padding:20px 16px;font-family:'맑은 고딕','Malgun Gothic',Arial,sans-serif;color:#111111;">
+
+  <div style="font-size:17px;font-weight:bold;margin:6px 0 10px 0;">○ 부동산 개발 테크 뉴스 스크랩</div>
+
+  <table cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">
+    <tr>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:56px;">1~{n}</td>
+      <td bgcolor="{C_HEAD}" colspan="3" style="border:{B};padding:7px 10px;text-align:center;font-weight:bold;">부동산 개발 테크 뉴스 · {today}</td>
+    </tr>
+    <tr>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:56px;">페이지</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 10px;text-align:center;font-weight:bold;">기사제목</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:110px;">매체명</td>
+      <td bgcolor="{C_HEAD}" style="border:{B};padding:7px 6px;text-align:center;font-weight:bold;width:110px;">비고</td>
+    </tr>"""]
+
+    seq = 1
+    insight_pool = []
+    for kw, items in groups.items():
+        items = sorted(items, key=lambda a: a["pub"], reverse=True)
         parts.append(
-            f"<div style='margin:20px 0 8px 0;font-size:14px;font-weight:bold;color:#12263f;"
-            f"border-left:4px solid #2f80ed;padding-left:9px;'># {e(kw)} "
-            f"<span style='color:#98a2b3;font-weight:normal;'>({len(items)})</span></div>"
+            f'<tr><td bgcolor="{C_SUB}" colspan="4" '
+            f'style="border:{B};padding:6px 8px;font-weight:bold;">&lt;{e(kw)} 관련기사&gt;</td></tr>'
         )
         for a in items:
-            desc = a["desc"]
-            if len(desc) > 130:
-                desc = desc[:130] + "…"
             when = a["pub"].strftime("%m/%d %H:%M")
+            press = press_name(a["domain"])
             parts.append(f"""
-      <div style="padding:12px 0;border-bottom:1px solid #eef0f3;">
-        <a href="{e(a['link'])}" style="font-size:15px;font-weight:bold;color:#1849a9;text-decoration:none;line-height:1.45;">{e(a['title'])}</a>
-        <div style="font-size:13px;color:#525c6b;margin-top:6px;line-height:1.55;">{e(desc)}</div>
-        <div style="font-size:11px;color:#98a2b3;margin-top:6px;">{e(a['domain'])} &nbsp;|&nbsp; {when}</div>
-      </div>""")
+      <tr>
+        <td style="border:{B};padding:6px;text-align:center;">{seq}</td>
+        <td style="border:{B};padding:6px 10px;line-height:1.5;">
+          <a href="{e(a['link'])}" style="color:#111111;text-decoration:none;">{e(a['title'])}</a>
+        </td>
+        <td style="border:{B};padding:6px;text-align:center;">{e(press)}</td>
+        <td style="border:{B};padding:6px;text-align:center;color:#333333;">{when}</td>
+      </tr>""")
+            insight_pool.append(a)
+            seq += 1
+
+    parts.append("</table>")
+
+    # ── 오늘자 테크 인사이트 (상위 기사 요약) ──
+    k = int(cfg["clipping"].get("insightCount", 0) or 0)
+    if k > 0:
+        top = sorted(insight_pool, key=lambda a: (a["score"], a["pub"]), reverse=True)[:k]
+        if top:
+            parts.append(
+                '<div style="font-size:17px;font-weight:bold;margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
+                f'<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
+            )
+            for i, a in enumerate(top, 1):
+                desc = a["desc"]
+                if len(desc) > 180:
+                    desc = desc[:180] + "…"
+                press = press_name(a["domain"])
+                parts.append(f"""
+      <tr>
+        <td style="border:{B};padding:9px 6px;text-align:center;vertical-align:top;width:36px;font-weight:bold;">{i}</td>
+        <td style="border:{B};padding:9px 12px;line-height:1.6;">
+          <a href="{e(a['link'])}" style="color:#12263f;font-weight:bold;text-decoration:none;">{e(a['title'])}</a>
+          <span style="color:#888888;">&nbsp;({e(press)})</span>
+          <div style="color:#333333;margin-top:5px;">{e(desc)}</div>
+        </td>
+      </tr>""")
+            parts.append("</table>")
 
     parts.append(f"""
-    </div>
-    <div style="padding:16px 24px;background:#fafbfc;border-top:1px solid #eef0f3;font-size:11px;color:#98a2b3;">
-      네이버 검색 API 기반 자동 수집 &middot; 생성 {datetime.now(KST):%Y-%m-%d %H:%M} (KST)
-    </div>
+  <div style="font-size:11px;color:#999999;margin-top:14px;">
+    네이버 검색 API 기반 자동 수집 · 최근 {cfg['clipping']['withinHours']}시간 · 총 {n}건 · 생성 {datetime.now(KST):%Y-%m-%d %H:%M} (KST)<br>
+    ※ '비고'는 지면정보 대신 발행시각을 표기합니다.
   </div>
 </div>
 </body></html>""")

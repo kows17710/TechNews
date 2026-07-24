@@ -19,32 +19,33 @@
   },
   "clipping": {
     "keywords": [
-      "AI 반도체",
-      "생성형 AI",
-      "클라우드",
-      "데이터센터",
-      "로봇",
-      "자율주행"
+      "부동산 개발",
+      "프롭테크",
+      "스마트시티",
+      "도시재생",
+      "부동산 PF",
+      "스마트 건설"
     ],
-    "perKeyword": 20,
-    "maxPerKeyword": 5,
-    "maxTotal": 25,
+    "perKeyword": 30,
+    "maxPerKeyword": 6,
+    "maxTotal": 30,
     "withinHours": 24,
     "excludeKeywords": [
-      "주가",
-      "코스피",
       "부고",
-      "인사"
+      "인사",
+      "포토",
+      "카드뉴스"
     ],
     "preferredPress": [
-      "zdnet.co.kr",
-      "etnews.com",
-      "thelec.kr",
-      "bloter.net",
-      "ddaily.co.kr",
-      "chosun.com",
+      "fnnews.com",
+      "dnews.co.kr",
+      "sedaily.com",
       "mk.co.kr",
-      "hankyung.com"
-    ]
+      "hankyung.com",
+      "asiae.co.kr",
+      "etnews.com",
+      "thelec.kr"
+    ],
+    "insightCount": 3
   }
 }
