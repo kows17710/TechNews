@@ -128,18 +128,23 @@ def search_news(cfg):
                     continue
 
                 link = item.get("originallink") or item.get("link") or ""
+                domain = get_domain(link)
+
+                # 주요 언론사만 채택 (설정 시)
+                if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
+                    continue
+
                 title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
                 if link in seen_links or title_key in seen_titles:
                     continue
 
-                if any(ex and ex in title for ex in clip["excludeKeywords"]):
+                if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
                     continue
 
                 seen_links.add(link)
                 seen_titles.add(title_key)
                 kept += 1
 
-                domain = get_domain(link)
                 score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
 
                 collected.append({

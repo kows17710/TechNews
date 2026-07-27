@@ -23,12 +23,13 @@
       { "name": "스마트시티·건설", "keywords": ["스마트시티", "스마트 건설", "프롭테크"] },
       { "name": "스마트 공간(홈·오피스)", "keywords": ["스마트홈", "스마트오피스", "AI홈", "AI오피스"] },
       { "name": "AI로봇", "keywords": ["로봇", "서빙로봇", "배송로봇", "안내로봇", "순찰로봇", "청소로봇"] },
-      { "name": "KT·그룹사 ICT", "keywords": ["KT에스테이트", "KT AI", "KT 클라우드", "KT 데이터센터", "KT DS", "KT텔레캅", "KT 부동산", "KT 스마트빌딩"] }
+      { "name": "KT·그룹사 ICT", "keywords": ["KT에스테이트", "KT AI", "KT 클라우드", "KT 데이터센터", "KT DS", "KT텔레캅", "KT 부동산", "KT 스마트빌딩"] },
+      { "name": "글로벌 테크 기업", "keywords": ["구글", "삼성전자", "애플", "엔비디아", "마이크로소프트", "오픈AI", "메타", "아마존"] }
     ],
     "perKeyword": 40,
     "maxPerKeyword": 5,
     "maxPerCategory": 12,
-    "maxTotal": 32,
+    "maxTotal": 36,
     "withinHours": 24,
     "requireKeywordInTitle": true,
     "excludeKeywords": [
@@ -40,7 +41,26 @@
       "아이폰",
       "스마트폰",
       "축제",
-      "페스티벌"
+      "페스티벌",
+      "wiz",
+      "위즈",
+      "소닉붐",
+      "프로야구",
+      "야구",
+      "농구",
+      "구단",
+      "스포츠"
+    ],
+    "majorPressOnly": true,
+    "majorPress": [
+      "chosun.com", "joongang.co.kr", "joins.com", "donga.com", "hani.co.kr",
+      "khan.co.kr", "hankookilbo.com", "seoul.co.kr", "kmib.co.kr", "munhwa.com",
+      "segye.com", "mk.co.kr", "hankyung.com", "sedaily.com", "fnnews.com",
+      "asiae.co.kr", "edaily.co.kr", "mt.co.kr", "heraldcorp.com", "dnews.co.kr",
+      "ajunews.com", "newspim.com", "dt.co.kr", "yna.co.kr", "yonhapnews",
+      "news1.kr", "newsis.com", "ytn.co.kr", "sbs.co.kr", "kbs.co.kr",
+      "imbc.com", "jtbc.co.kr", "mbn.co.kr", "etnews.com", "zdnet.co.kr",
+      "thelec.kr", "bloter.net", "ddaily.co.kr", "inews24.com", "biz.chosun.com"
     ],
     "preferredPress": [
       "fnnews.com",
