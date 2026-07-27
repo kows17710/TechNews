@@ -76,6 +76,10 @@
       "etnews.com",
       "thelec.kr"
     ],
-    "insightCount": 3
+    "insight": {
+      "keywords": ["생성형 AI", "AI 에이전트", "AI 데이터센터", "온디바이스 AI", "AI 반도체", "빅테크", "AI 규제"],
+      "count": 3,
+      "descMaxLen": 240
+    }
   }
 }

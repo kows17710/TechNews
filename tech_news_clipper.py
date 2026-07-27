@@ -169,6 +169,69 @@ def search_news(cfg):
     return selected
 
 
+def search_insight(cfg, articles):
+    """위 카테고리와 별개로, 현재 이슈가 되는 테크 주제를 따로 검색해
+    표에 이미 실린 기사와 중복되지 않는 기사를 골라 반환한다."""
+    naver, clip = cfg["naver"], cfg["clipping"]
+    ins = clip.get("insight") or {}
+    keywords = ins.get("keywords") or []
+    count = int(ins.get("count", 0) or 0)
+    if not keywords or count <= 0:
+        return []
+
+    cutoff = datetime.now(KST) - timedelta(hours=clip["withinHours"])
+    seen_links = {a["link"] for a in articles}
+    seen_titles = {re.sub(r"[^\w가-힣]", "", a["title"])[:20] for a in articles}
+    out = []
+
+    for keyword in keywords:
+        url = ("https://openapi.naver.com/v1/search/news.json?"
+               + urllib.parse.urlencode({"query": keyword, "display": clip["perKeyword"],
+                                         "start": 1, "sort": "date"}))
+        req = urllib.request.Request(url, headers={
+            "X-Naver-Client-Id": naver["clientId"],
+            "X-Naver-Client-Secret": naver["clientSecret"],
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            log(f"[인사이트] '{keyword}' 검색 실패: {e}")
+            continue
+
+        for item in data.get("items", []):
+            title = clean_text(item.get("title"))
+            desc = clean_text(item.get("description"))
+            try:
+                pub = parsedate_to_datetime(item.get("pubDate"))
+                if pub.tzinfo is None:
+                    pub = pub.replace(tzinfo=KST)
+            except Exception:
+                continue
+            if pub < cutoff:
+                continue
+            if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
+                continue
+            link = item.get("originallink") or item.get("link") or ""
+            domain = get_domain(link)
+            if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
+                continue
+            title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
+            if link in seen_links or title_key in seen_titles:
+                continue
+            if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
+                continue
+            seen_links.add(link)
+            seen_titles.add(title_key)
+            score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
+            out.append({"keyword": keyword, "title": title, "desc": desc,
+                        "link": link, "pub": pub, "domain": domain, "score": score})
+
+    out.sort(key=lambda a: (a["score"], a["pub"]), reverse=True)
+    log(f"[인사이트] {len(out)} 건 중 상위 {min(count, len(out))} 건 선정")
+    return out[:count]
+
+
 # 도메인 → 매체명(한글) 매핑. 없으면 도메인 그대로 표기.
 PRESS_MAP = {
     "fnnews.com": "파이낸셜뉴스", "dnews.co.kr": "대한경제", "sedaily.com": "서울경제",
@@ -235,10 +298,11 @@ def daily_greeting():
     return greeting, quote
 
 
-def build_html(cfg, articles):
+def build_html(cfg, articles, insights=None):
     e = html.escape
     today = datetime.now(KST).strftime("%Y년 %m월 %d일")
     n = len(articles)
+    insights = insights or []
 
     # 설정에 정의된 4개 카테고리 순서를 유지한 그룹
     cat_order = [c["name"] for c in cfg["clipping"]["categories"]]
@@ -292,7 +356,6 @@ def build_html(cfg, articles):
     </tr>"""]
 
     seq = 1
-    insight_pool = []
     for cat_name, items in groups.items():
         items = sorted(items, key=lambda a: a["pub"], reverse=True)
         parts.append(
@@ -312,26 +375,24 @@ def build_html(cfg, articles):
         <td class="c c-press" style="border:{B};padding:6px;text-align:center;font-family:{F_MEDIUM};">{e(press)}</td>
         <td class="c c-note" style="border:{B};padding:6px;text-align:center;font-family:{F_THIN};color:#333333;">{when}</td>
       </tr>""")
-            insight_pool.append(a)
             seq += 1
 
     parts.append("</table>")
 
-    # ── 오늘자 테크 인사이트 (상위 기사 요약) ──
-    k = int(cfg["clipping"].get("insightCount", 0) or 0)
-    if k > 0:
-        top = sorted(insight_pool, key=lambda a: (a["score"], a["pub"]), reverse=True)[:k]
-        if top:
-            parts.append(
-                f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
-                f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
-            )
-            for i, a in enumerate(top, 1):
-                desc = a["desc"]
-                if len(desc) > 180:
-                    desc = desc[:180] + "…"
-                press = press_name(a["domain"])
-                parts.append(f"""
+    # ── 오늘자 테크 인사이트 (위 표와 별개로, 지금 이슈가 되는 테크 기사) ──
+    if insights:
+        desc_max = int((cfg["clipping"].get("insight") or {}).get("descMaxLen", 240))
+        parts.append(
+            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
+            f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
+        )
+        for i, a in enumerate(insights, 1):
+            desc = a["desc"]
+            if len(desc) > desc_max:
+                desc = desc[:desc_max] + "…"
+            press = press_name(a["domain"])
+            when = a["pub"].strftime("%m/%d %H:%M")
+            parts.append(f"""
       <tr>
         <td class="c c-num" style="border:{B};padding:9px 6px;text-align:center;vertical-align:top;width:36px;font-family:{F_BOLD};">{i}</td>
         <td class="c" style="border:{B};padding:9px 12px;line-height:1.6;">
@@ -340,7 +401,7 @@ def build_html(cfg, articles):
           <div style="font-family:{F_MEDIUM};color:#333333;margin-top:5px;">{e(desc)}</div>
         </td>
       </tr>""")
-            parts.append("</table>")
+        parts.append("</table>")
 
     parts.append(f"""
   <div style="font-size:11px;font-family:{F_THIN};color:#999999;margin-top:14px;">
@@ -407,7 +468,8 @@ def main():
         return
 
     log(f"총 {len(articles)} 건 선별 완료")
-    body = build_html(cfg, articles)
+    insights = search_insight(cfg, articles)
+    body = build_html(cfg, articles, insights)
     subject = f"{cfg['mail']['subjectPrefix']} {datetime.now(KST):%Y-%m-%d} ({len(articles)}건)"
 
     if os.environ.get("PREVIEW") == "1":
