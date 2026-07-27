@@ -31,6 +31,7 @@
     "maxPerCategory": 12,
     "maxTotal": 36,
     "withinHours": 24,
+    "fallbackHours": 48,
     "requireKeywordInTitle": true,
     "excludeKeywords": [
       "부고",

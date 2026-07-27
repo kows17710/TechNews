@@ -81,78 +81,79 @@ def load_config():
 def search_news(cfg):
     naver = cfg["naver"]
     clip = cfg["clipping"]
-    cutoff = datetime.now(KST) - timedelta(hours=clip["withinHours"])
+    now = datetime.now(KST)
+    cutoff = now - timedelta(hours=clip["withinHours"])
+    fb_hours = clip.get("fallbackHours")
+    fb_cutoff = now - timedelta(hours=fb_hours) if fb_hours else None
 
     seen_links, seen_titles = set(), set()
     collected = []
 
+    def fetch(keyword, cut, cat_name, cat_excludes):
+        """한 키워드로 조건을 만족하는 기사를 수집. seen_* 를 갱신한다."""
+        url = ("https://openapi.naver.com/v1/search/news.json?"
+               + urllib.parse.urlencode({"query": keyword, "display": clip["perKeyword"],
+                                         "start": 1, "sort": "date"}))
+        req = urllib.request.Request(url, headers={
+            "X-Naver-Client-Id": naver["clientId"],
+            "X-Naver-Client-Secret": naver["clientSecret"],
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            log(f"[{cat_name}] '{keyword}' 검색 실패: {e}")
+            return []
+
+        kept = []
+        for item in data.get("items", []):
+            if len(kept) >= clip["maxPerKeyword"]:
+                break
+            title = clean_text(item.get("title"))
+            desc = clean_text(item.get("description"))
+            try:
+                pub = parsedate_to_datetime(item.get("pubDate"))
+                if pub.tzinfo is None:
+                    pub = pub.replace(tzinfo=KST)
+            except Exception:
+                continue
+            if pub < cut:
+                continue
+            if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
+                continue
+            link = item.get("originallink") or item.get("link") or ""
+            domain = get_domain(link)
+            if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
+                continue
+            title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
+            if link in seen_links or title_key in seen_titles:
+                continue
+            if any(ex and ex.lower() in title.lower() for ex in cat_excludes):
+                continue
+            seen_links.add(link)
+            seen_titles.add(title_key)
+            score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
+            kept.append({"category": cat_name, "keyword": keyword, "title": title, "desc": desc,
+                         "link": link, "pub": pub, "domain": domain, "score": score})
+        return kept
+
     for cat in clip["categories"]:
         cat_name = cat["name"]
         cat_excludes = list(clip["excludeKeywords"]) + list(cat.get("excludeKeywords", []))
+        cat_arts = []
         for keyword in cat["keywords"]:
-            url = (
-                "https://openapi.naver.com/v1/search/news.json?"
-                + urllib.parse.urlencode(
-                    {"query": keyword, "display": clip["perKeyword"], "start": 1, "sort": "date"}
-                )
-            )
-            req = urllib.request.Request(url, headers={
-                "X-Naver-Client-Id": naver["clientId"],
-                "X-Naver-Client-Secret": naver["clientSecret"],
-            })
-            try:
-                with urllib.request.urlopen(req, timeout=30) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-            except Exception as e:
-                log(f"[{cat_name}] '{keyword}' 검색 실패: {e}")
-                continue
-
-            kept = 0
-            for item in data.get("items", []):
-                if kept >= clip["maxPerKeyword"]:
-                    break
-
-                title = clean_text(item.get("title"))
-                desc = clean_text(item.get("description"))
-
-                try:
-                    pub = parsedate_to_datetime(item.get("pubDate"))
-                    if pub.tzinfo is None:
-                        pub = pub.replace(tzinfo=KST)
-                except Exception:
-                    continue
-                if pub < cutoff:
-                    continue
-
-                # 정확도: 키워드가 제목에 실제로 포함된 기사만 채택
-                if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
-                    continue
-
-                link = item.get("originallink") or item.get("link") or ""
-                domain = get_domain(link)
-
-                # 주요 언론사만 채택 (설정 시)
-                if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
-                    continue
-
-                title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
-                if link in seen_links or title_key in seen_titles:
-                    continue
-
-                if any(ex and ex.lower() in title.lower() for ex in cat_excludes):
-                    continue
-
-                seen_links.add(link)
-                seen_titles.add(title_key)
-                kept += 1
-
-                score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
-
-                collected.append({
-                    "category": cat_name, "keyword": keyword, "title": title, "desc": desc,
-                    "link": link, "pub": pub, "domain": domain, "score": score,
-                })
-            log(f"[{cat_name}] '{keyword}' → {kept} 건")
+            arts = fetch(keyword, cutoff, cat_name, cat_excludes)
+            cat_arts += arts
+            log(f"[{cat_name}] '{keyword}' → {len(arts)} 건")
+        # 폴백: 카테고리가 24시간 내 0건이면 확대 시간으로 재검색
+        if not cat_arts and fb_cutoff:
+            log(f"[{cat_name}] 24시간 내 0건 → {fb_hours}시간으로 확대 검색")
+            for keyword in cat["keywords"]:
+                arts = fetch(keyword, fb_cutoff, cat_name, cat_excludes)
+                if arts:
+                    log(f"[{cat_name}] '{keyword}' → {len(arts)} 건 (확대)")
+                cat_arts += arts
+        collected += cat_arts
 
     # 선별: 점수·최신순 정렬 후, 카테고리별 상한을 지켜 전체 상한까지 채운다
     collected.sort(key=lambda a: (a["score"], a["pub"]), reverse=True)
@@ -179,53 +180,61 @@ def search_insight(cfg, articles):
     if not keywords or count <= 0:
         return []
 
-    cutoff = datetime.now(KST) - timedelta(hours=clip["withinHours"])
+    now = datetime.now(KST)
+    cutoff = now - timedelta(hours=clip["withinHours"])
+    fb_hours = clip.get("fallbackHours")
     seen_links = {a["link"] for a in articles}
     seen_titles = {re.sub(r"[^\w가-힣]", "", a["title"])[:20] for a in articles}
-    out = []
 
-    for keyword in keywords:
-        url = ("https://openapi.naver.com/v1/search/news.json?"
-               + urllib.parse.urlencode({"query": keyword, "display": clip["perKeyword"],
-                                         "start": 1, "sort": "date"}))
-        req = urllib.request.Request(url, headers={
-            "X-Naver-Client-Id": naver["clientId"],
-            "X-Naver-Client-Secret": naver["clientSecret"],
-        })
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except Exception as e:
-            log(f"[인사이트] '{keyword}' 검색 실패: {e}")
-            continue
-
-        for item in data.get("items", []):
-            title = clean_text(item.get("title"))
-            desc = clean_text(item.get("description"))
+    def run(cut):
+        res = []
+        for keyword in keywords:
+            url = ("https://openapi.naver.com/v1/search/news.json?"
+                   + urllib.parse.urlencode({"query": keyword, "display": clip["perKeyword"],
+                                             "start": 1, "sort": "date"}))
+            req = urllib.request.Request(url, headers={
+                "X-Naver-Client-Id": naver["clientId"],
+                "X-Naver-Client-Secret": naver["clientSecret"],
+            })
             try:
-                pub = parsedate_to_datetime(item.get("pubDate"))
-                if pub.tzinfo is None:
-                    pub = pub.replace(tzinfo=KST)
-            except Exception:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+            except Exception as e:
+                log(f"[인사이트] '{keyword}' 검색 실패: {e}")
                 continue
-            if pub < cutoff:
-                continue
-            if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
-                continue
-            link = item.get("originallink") or item.get("link") or ""
-            domain = get_domain(link)
-            if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
-                continue
-            title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
-            if link in seen_links or title_key in seen_titles:
-                continue
-            if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
-                continue
-            seen_links.add(link)
-            seen_titles.add(title_key)
-            score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
-            out.append({"keyword": keyword, "title": title, "desc": desc,
-                        "link": link, "pub": pub, "domain": domain, "score": score})
+            for item in data.get("items", []):
+                title = clean_text(item.get("title"))
+                desc = clean_text(item.get("description"))
+                try:
+                    pub = parsedate_to_datetime(item.get("pubDate"))
+                    if pub.tzinfo is None:
+                        pub = pub.replace(tzinfo=KST)
+                except Exception:
+                    continue
+                if pub < cut:
+                    continue
+                if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
+                    continue
+                link = item.get("originallink") or item.get("link") or ""
+                domain = get_domain(link)
+                if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
+                    continue
+                title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
+                if link in seen_links or title_key in seen_titles:
+                    continue
+                if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
+                    continue
+                seen_links.add(link)
+                seen_titles.add(title_key)
+                score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
+                res.append({"keyword": keyword, "title": title, "desc": desc,
+                            "link": link, "pub": pub, "domain": domain, "score": score})
+        return res
+
+    out = run(cutoff)
+    if not out and fb_hours:
+        log(f"[인사이트] 24시간 내 0건 → {fb_hours}시간으로 확대 검색")
+        out = run(now - timedelta(hours=fb_hours))
 
     out.sort(key=lambda a: (a["score"], a["pub"]), reverse=True)
     log(f"[인사이트] {len(out)} 건 중 상위 {min(count, len(out))} 건 선정")
