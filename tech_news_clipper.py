@@ -88,6 +88,7 @@ def search_news(cfg):
 
     for cat in clip["categories"]:
         cat_name = cat["name"]
+        cat_excludes = list(clip["excludeKeywords"]) + list(cat.get("excludeKeywords", []))
         for keyword in cat["keywords"]:
             url = (
                 "https://openapi.naver.com/v1/search/news.json?"
@@ -138,7 +139,7 @@ def search_news(cfg):
                 if link in seen_links or title_key in seen_titles:
                     continue
 
-                if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
+                if any(ex and ex.lower() in title.lower() for ex in cat_excludes):
                     continue
 
                 seen_links.add(link)
