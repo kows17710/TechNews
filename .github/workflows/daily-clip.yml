@@ -4,7 +4,15 @@ on:
   schedule:
     # GitHub Actions cron 은 UTC 기준. 08:00 KST = 23:00 UTC(전날).
     - cron: "0 23 * * *"
-  workflow_dispatch: {}   # 저장소 Actions 탭에서 수동 실행 가능
+  workflow_dispatch:
+    inputs:
+      preview:
+        description: "true 로 두면 메일을 보내지 않고 코드 검증만 수행"
+        default: "false"
+
+# 발송 이력 파일을 저장소에 커밋하기 위한 쓰기 권한
+permissions:
+  contents: write
 
 # 동시 실행 방지
 concurrency:
@@ -29,4 +37,18 @@ jobs:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          PREVIEW: ${{ github.event.inputs.preview == 'true' && '1' || '' }}
         run: python tech_news_clipper.py
+
+      - name: Persist sent history
+        if: always()
+        run: |
+          if [ -n "$(git status --porcelain sent_history.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add sent_history.json
+            git commit -m "Update sent history [skip ci]"
+            git push
+          else
+            echo "발송 이력 변경 없음 — 커밋 생략"
+          fi

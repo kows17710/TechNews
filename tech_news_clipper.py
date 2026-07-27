@@ -24,10 +24,46 @@ from email.mime.text import MIMEText
 
 KST = timezone(timedelta(hours=9))
 HERE = os.path.dirname(os.path.abspath(__file__))
+HISTORY_FILE = os.path.join(HERE, "sent_history.json")
 
 
 def log(msg):
     print(f"{datetime.now(KST):%Y-%m-%d %H:%M:%S} | {msg}", flush=True)
+
+
+def title_key(title):
+    return re.sub(r"[^\w가-힣]", "", title)[:20]
+
+
+def load_history():
+    """이전에 발송한 기사 이력(링크·제목키)을 불러온다."""
+    try:
+        with open(HISTORY_FILE, encoding="utf-8") as f:
+            items = (json.load(f) or {}).get("items", [])
+    except Exception:
+        items = []
+    links = {it.get("link") for it in items if it.get("link")}
+    titles = {it.get("title_key") for it in items if it.get("title_key")}
+    return links, titles, items
+
+
+def save_history(cfg, prev_items, sent_items):
+    """발송한 기사들을 이력에 추가하고, 오래된 항목은 정리해 저장한다."""
+    days = int(cfg["clipping"].get("historyDays", 7))
+    today = datetime.now(KST).strftime("%Y-%m-%d")
+    cutoff = (datetime.now(KST) - timedelta(days=days)).strftime("%Y-%m-%d")
+    kept = [it for it in prev_items if str(it.get("sent", "")) >= cutoff]
+    existing = {it.get("link") for it in kept}
+    for link, tkey in sent_items:
+        if link and link not in existing:
+            kept.append({"link": link, "title_key": tkey, "sent": today})
+            existing.add(link)
+    try:
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump({"items": kept}, f, ensure_ascii=False, indent=0)
+        log(f"발송 이력 저장: 누적 {len(kept)}건 (최근 {days}일)")
+    except Exception as e:
+        log(f"발송 이력 저장 실패: {e}")
 
 
 def clean_text(text):
@@ -78,7 +114,7 @@ def load_config():
     return cfg
 
 
-def search_news(cfg):
+def search_news(cfg, seed_links=None, seed_titles=None):
     naver = cfg["naver"]
     clip = cfg["clipping"]
     now = datetime.now(KST)
@@ -86,10 +122,11 @@ def search_news(cfg):
     fb_hours = clip.get("fallbackHours")
     fb_cutoff = now - timedelta(hours=fb_hours) if fb_hours else None
 
-    seen_links, seen_titles = set(), set()
+    seen_links = set(seed_links or ())
+    seen_titles = set(seed_titles or ())
     collected = []
 
-    def fetch(keyword, cut, cat_name, cat_excludes):
+    def fetch(keyword, cut, cat_name, cat_excludes, major_only):
         """한 키워드로 조건을 만족하는 기사를 수집. seen_* 를 갱신한다."""
         url = ("https://openapi.naver.com/v1/search/news.json?"
                + urllib.parse.urlencode({"query": keyword, "display": clip["perKeyword"],
@@ -123,15 +160,15 @@ def search_news(cfg):
                 continue
             link = item.get("originallink") or item.get("link") or ""
             domain = get_domain(link)
-            if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
+            if major_only and not any(p in domain for p in clip.get("majorPress", [])):
                 continue
-            title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
-            if link in seen_links or title_key in seen_titles:
+            tkey = title_key(title)
+            if link in seen_links or tkey in seen_titles:
                 continue
             if any(ex and ex.lower() in title.lower() for ex in cat_excludes):
                 continue
             seen_links.add(link)
-            seen_titles.add(title_key)
+            seen_titles.add(tkey)
             score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
             kept.append({"category": cat_name, "keyword": keyword, "title": title, "desc": desc,
                          "link": link, "pub": pub, "domain": domain, "score": score})
@@ -140,16 +177,17 @@ def search_news(cfg):
     for cat in clip["categories"]:
         cat_name = cat["name"]
         cat_excludes = list(clip["excludeKeywords"]) + list(cat.get("excludeKeywords", []))
+        major_only = cat.get("majorPressOnly", clip.get("majorPressOnly"))
         cat_arts = []
         for keyword in cat["keywords"]:
-            arts = fetch(keyword, cutoff, cat_name, cat_excludes)
+            arts = fetch(keyword, cutoff, cat_name, cat_excludes, major_only)
             cat_arts += arts
             log(f"[{cat_name}] '{keyword}' → {len(arts)} 건")
         # 폴백: 카테고리가 24시간 내 0건이면 확대 시간으로 재검색
         if not cat_arts and fb_cutoff:
             log(f"[{cat_name}] 24시간 내 0건 → {fb_hours}시간으로 확대 검색")
             for keyword in cat["keywords"]:
-                arts = fetch(keyword, fb_cutoff, cat_name, cat_excludes)
+                arts = fetch(keyword, fb_cutoff, cat_name, cat_excludes, major_only)
                 if arts:
                     log(f"[{cat_name}] '{keyword}' → {len(arts)} 건 (확대)")
                 cat_arts += arts
@@ -170,9 +208,9 @@ def search_news(cfg):
     return selected
 
 
-def search_insight(cfg, articles):
+def search_insight(cfg, articles, seed_links=None, seed_titles=None):
     """위 카테고리와 별개로, 현재 이슈가 되는 테크 주제를 따로 검색해
-    표에 이미 실린 기사와 중복되지 않는 기사를 골라 반환한다."""
+    표에 이미 실린 기사·이전 발송분과 중복되지 않는 기사를 골라 반환한다."""
     naver, clip = cfg["naver"], cfg["clipping"]
     ins = clip.get("insight") or {}
     keywords = ins.get("keywords") or []
@@ -183,8 +221,8 @@ def search_insight(cfg, articles):
     now = datetime.now(KST)
     cutoff = now - timedelta(hours=clip["withinHours"])
     fb_hours = clip.get("fallbackHours")
-    seen_links = {a["link"] for a in articles}
-    seen_titles = {re.sub(r"[^\w가-힣]", "", a["title"])[:20] for a in articles}
+    seen_links = {a["link"] for a in articles} | set(seed_links or ())
+    seen_titles = {title_key(a["title"]) for a in articles} | set(seed_titles or ())
 
     def run(cut):
         res = []
@@ -219,13 +257,13 @@ def search_insight(cfg, articles):
                 domain = get_domain(link)
                 if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
                     continue
-                title_key = re.sub(r"[^\w가-힣]", "", title)[:20]
-                if link in seen_links or title_key in seen_titles:
+                tkey = title_key(title)
+                if link in seen_links or tkey in seen_titles:
                     continue
                 if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
                     continue
                 seen_links.add(link)
-                seen_titles.add(title_key)
+                seen_titles.add(tkey)
                 score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
                 res.append({"keyword": keyword, "title": title, "desc": desc,
                             "link": link, "pub": pub, "domain": domain, "score": score})
@@ -470,14 +508,19 @@ def main():
     cats = cfg["clipping"]["categories"]
     kw_total = sum(len(c["keywords"]) for c in cats)
     log(f"클리핑 시작 (카테고리 {len(cats)}개 / 키워드 {kw_total}개)")
-    articles = search_news(cfg)
+
+    # 이전 발송 이력을 불러와 중복 기사를 제외한다
+    hist_links, hist_titles, hist_items = load_history()
+    log(f"발송 이력 {len(hist_links)}건 로드 (중복 제외용)")
+
+    articles = search_news(cfg, hist_links, hist_titles)
 
     if not articles:
-        log(f"최근 {cfg['clipping']['withinHours']}시간 내 기사가 없습니다. 발송하지 않고 종료.")
+        log("새(중복 아닌) 기사가 없습니다. 발송하지 않고 종료.")
         return
 
     log(f"총 {len(articles)} 건 선별 완료")
-    insights = search_insight(cfg, articles)
+    insights = search_insight(cfg, articles, hist_links, hist_titles)
     body = build_html(cfg, articles, insights)
     subject = f"{cfg['mail']['subjectPrefix']} {datetime.now(KST):%Y-%m-%d} ({len(articles)}건)"
 
@@ -490,6 +533,10 @@ def main():
 
     send_mail(cfg, subject, body)
     log(f"발송 완료 → {cfg['mail']['to']}")
+
+    # 발송 성공 후, 이번에 보낸 기사들을 이력에 추가
+    sent = [(a["link"], title_key(a["title"])) for a in (articles + insights)]
+    save_history(cfg, hist_items, sent)
 
 
 if __name__ == "__main__":
