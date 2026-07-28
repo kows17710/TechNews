@@ -99,6 +99,32 @@ def title_matches(keyword, title):
     return True
 
 
+# 근접 중복 판정용: 제목 편집 표시어(내용과 무관)
+_DEDUP_STOP = {"단독", "종합", "속보", "포토", "영상", "인터뷰", "오늘", "내일", "그래픽"}
+
+
+def title_tokens(title):
+    """제목에서 유의미한 단어 집합을 뽑는다 (2글자 이상, 표시어 제외)."""
+    words = re.findall(r"[0-9A-Za-z가-힣]+", (title or "").lower())
+    return frozenset(w for w in words if len(w) >= 2 and w not in _DEDUP_STOP)
+
+
+def is_near_duplicate(toks, existing_tokensets, threshold):
+    """제목이 달라도 단어 구성이 크게 겹치면(같은 사건) 중복으로 본다."""
+    if not toks:
+        return False
+    for ex in existing_tokensets:
+        if not ex:
+            continue
+        inter = len(toks & ex)
+        if inter == 0:
+            continue
+        jac = inter / len(toks | ex)
+        if jac >= threshold or (inter >= 4 and jac >= 0.4):
+            return True
+    return False
+
+
 def load_config():
     path = os.path.join(HERE, "config.json")
     with open(path, "r", encoding="utf-8") as f:
@@ -124,6 +150,8 @@ def search_news(cfg, seed_links=None, seed_titles=None):
 
     seen_links = set(seed_links or ())
     seen_titles = set(seed_titles or ())
+    seen_tokens = []
+    dedup_thr = float(clip.get("dedupSimilarity", 0.6))
     collected = []
 
     def fetch(keyword, cut, cat_name, cat_excludes, major_only):
@@ -167,8 +195,12 @@ def search_news(cfg, seed_links=None, seed_titles=None):
                 continue
             if any(ex and ex.lower() in title.lower() for ex in cat_excludes):
                 continue
+            toks = title_tokens(title)
+            if is_near_duplicate(toks, seen_tokens, dedup_thr):
+                continue
             seen_links.add(link)
             seen_titles.add(tkey)
+            seen_tokens.append(toks)
             score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
             kept.append({"category": cat_name, "keyword": keyword, "title": title, "desc": desc,
                          "link": link, "pub": pub, "domain": domain, "score": score})
@@ -223,6 +255,8 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
     fb_hours = clip.get("fallbackHours")
     seen_links = {a["link"] for a in articles} | set(seed_links or ())
     seen_titles = {title_key(a["title"]) for a in articles} | set(seed_titles or ())
+    seen_tokens = [title_tokens(a["title"]) for a in articles]
+    dedup_thr = float(clip.get("dedupSimilarity", 0.6))
 
     def run(cut):
         res = []
@@ -262,8 +296,12 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
                     continue
                 if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
                     continue
+                toks = title_tokens(title)
+                if is_near_duplicate(toks, seen_tokens, dedup_thr):
+                    continue
                 seen_links.add(link)
                 seen_titles.add(tkey)
+                seen_tokens.append(toks)
                 score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
                 res.append({"keyword": keyword, "title": title, "desc": desc,
                             "link": link, "pub": pub, "domain": domain, "score": score})

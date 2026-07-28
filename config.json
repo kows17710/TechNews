@@ -34,6 +34,7 @@
     "fallbackHours": 48,
     "historyDays": 7,
     "requireKeywordInTitle": true,
+    "dedupSimilarity": 0.6,
     "excludeKeywords": [
       "부고",
       "인사",
