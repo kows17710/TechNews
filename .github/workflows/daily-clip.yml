@@ -1,10 +1,8 @@
 name: Daily Tech News Clipping
 
 on:
-  schedule:
-    # GitHub Actions cron 은 UTC 기준. 정각(:00)은 혼잡해 지연이 크므로 오프피크 분 사용.
-    # 22:50 UTC = 07:50 KST (8시보다 약간 앞서 버퍼를 둠)
-    - cron: "50 22 * * *"
+  # 정시 발송은 외부 크론(cron-job.org)이 매일 08:00 KST 에 workflow_dispatch 를 호출한다.
+  # GitHub 자체 schedule 은 지연이 심해 제거함.
   workflow_dispatch:
     inputs:
       preview:
