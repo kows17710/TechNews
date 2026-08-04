@@ -1,7 +1,7 @@
 name: Daily Tech News Clipping
 
 on:
-  # 정시 발송은 외부 크론(cron-job.org)이 매일 08:00 KST 에 workflow_dispatch 를 호출한다.
+  # 정시 발송은 외부 크론(cron-job.org)이 매일 09:00 KST 에 workflow_dispatch 를 호출한다.
   # GitHub 자체 schedule 은 지연이 심해 제거함.
   workflow_dispatch:
     inputs:
