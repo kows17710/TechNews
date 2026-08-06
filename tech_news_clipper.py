@@ -567,6 +567,10 @@ def main():
         with open(out, "w", encoding="utf-8") as f:
             f.write(body)
         log(f"미리보기 모드 — 발송 안 함. HTML 저장: {out}")
+        # 로그로도 HTML 을 내보내 외부에서 회수할 수 있게 함
+        print("=====PREVIEW_HTML_START=====")
+        print(body)
+        print("=====PREVIEW_HTML_END=====")
         return
 
     send_mail(cfg, subject, body)
