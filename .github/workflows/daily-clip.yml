@@ -39,6 +39,14 @@ jobs:
           PREVIEW: ${{ github.event.inputs.preview == 'true' && '1' || '' }}
         run: python tech_news_clipper.py
 
+      - name: Upload preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview
+          path: preview.html
+          if-no-files-found: ignore
+
       - name: Persist sent history
         if: always()
         run: |
