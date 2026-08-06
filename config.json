@@ -4,7 +4,7 @@
     "clientSecret": "SET_VIA_GITHUB_SECRET"
   },
   "mail": {
-    "to": "wonsik.ko@kt.com, archinfo.lee@kt.com, linked.jun@kt.com, hoon.lee@kt.com",
+    "to": "wonsik.ko@kt.com, archinfo.lee@kt.com, linked.jun@kt.com, hoon.lee@kt.com, bc.pak@kt.com",
     "cc": "",
     "subjectPrefix": "[Tech News]"
   },
