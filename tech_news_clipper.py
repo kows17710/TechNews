@@ -505,16 +505,27 @@ def send_mail(cfg, subject, body_html):
     if not password:
         raise SystemExit("SMTP_PASSWORD 환경변수(Gmail 앱 비밀번호)가 비어 있습니다.")
 
+    def _split(s):
+        return [x.strip() for x in re.split(r"[;,]", s or "") if x.strip()]
+
+    to_field = (cfg["mail"].get("to") or "").strip()
+    cc_field = (cfg["mail"].get("cc") or "").strip()
+    bcc_field = (cfg["mail"].get("bcc") or "").strip()
+
     msg = MIMEText(body_html, "html", "utf-8")
     msg["Subject"] = subject
     msg["From"] = formataddr((str(smtp.get("fromDisplayName", "")), smtp["from"]))
-    msg["To"] = cfg["mail"]["to"]
-    if cfg["mail"].get("cc"):
-        msg["Cc"] = cfg["mail"]["cc"]
+    # To 헤더: 없으면 발신자 자신으로 (BCC 만 쓸 때 수신자 상호 노출 방지)
+    msg["To"] = to_field or smtp["from"]
+    if cc_field:
+        msg["Cc"] = cc_field
+    # Bcc 는 헤더에 넣지 않는다 — 수신자들이 서로의 주소를 못 본다
 
-    recipients = [x.strip() for x in re.split(r"[;,]", cfg["mail"]["to"]) if x.strip()]
-    if cfg["mail"].get("cc"):
-        recipients += [x.strip() for x in re.split(r"[;,]", cfg["mail"]["cc"]) if x.strip()]
+    # 봉투(envelope) 수신자 = to + cc + bcc, 중복 제거
+    recipients = list(dict.fromkeys(_split(to_field) + _split(cc_field) + _split(bcc_field)))
+    if not recipients:
+        raise SystemExit("수신자가 없습니다 (config.json 의 mail.to / mail.bcc 확인).")
+    log(f"수신자 {len(recipients)}명에게 발송 시도")
 
     with smtplib.SMTP(smtp["host"], int(smtp["port"]), timeout=30) as server:
         server.ehlo()
