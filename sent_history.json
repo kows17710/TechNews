@@ -1,191 +1,6 @@
 {
 "items": [
 {
-"link": "http://www.fnnews.com/news/202607291621263216",
-"title_key": "메타구글공급망올라탄가온전선사상최대실적",
-"sent": "2026-07-29"
-},
-{
-"link": "http://www.fnnews.com/news/202607291351280240",
-"title_key": "요금제가입어려워요외국인호소에KT다국어",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.hankyung.com/article/202607293490i",
-"title_key": "에스오에스랩4족순찰로봇상용화현장실증한",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.hankyung.com/article/202607293387i",
-"title_key": "롯데건설건설현장에자율주행청소로봇투입",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.sedaily.com/article/20073335?ref=naver",
-"title_key": "한일시멘트AI로아파트바닥공사품질효율높",
-"sent": "2026-07-29"
-},
-{
-"link": "http://www.fnnews.com/news/202607281839298063",
-"title_key": "입주민건강관리부터택배배송로봇까지",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.edaily.co.kr/news/newspath.asp?newsid=05789206645519440",
-"title_key": "테솔로로봇손美스탠퍼드연구플랫폼활용",
-"sent": "2026-07-29"
-},
-{
-"link": "http://www.lawissue.co.kr/view.php?ud=202607291708253468204ead0791_12",
-"title_key": "KT커머스AI가격협상솔루션고도화데이터",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.newsis.com/view/NISX20260729_0003728673",
-"title_key": "대전자치경찰위순찰로봇등미래치안기술현장",
-"sent": "2026-07-29"
-},
-{
-"link": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008681144&plink=ORI&cooper=NAVER",
-"title_key": "미국중국겨냥해외국산로봇수입금지중국미국",
-"sent": "2026-07-29"
-},
-{
-"link": "http://www.inews24.com/view/1989986",
-"title_key": "현장한국개발자는세계최고수준애플AI개발",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.dt.co.kr/article/12075521?ref=naver",
-"title_key": "美외국산휴머노이드수입막는다중국로봇견제",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.ytn.co.kr/_ln/0102_202607291654495071",
-"title_key": "기업로봇이건설현장청소롯데건설자율주행로",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.news1.kr/world/usa-canada/6243125",
-"title_key": "오픈AI샘올트먼AI개발속도사회가따라잡",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.yna.co.kr/view/AKR20260729154100063?input=1195m",
-"title_key": "충남소식공주메타세쿼이아길에해충응애발생",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.polinews.co.kr/news/articleView.html?idxno=738446",
-"title_key": "BC카드몽고DB와AI데이터플랫폼고도화",
-"sent": "2026-07-29"
-},
-{
-"link": "https://biz.chosun.com/it-science/ict/2026/07/29/2H4HWWOCBBBEPFI67WG5NTYH24/?utm_source=naver&utm_medium=original&utm_campaign=biz",
-"title_key": "中견제용오픈웨이트규제에오픈AI앤트로픽",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.donga.com/news/Economy/article/all/20260729/134386494/1",
-"title_key": "애플AI앱스토어로韓개발자해외진출돕는다",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.donga.com/news/Economy/article/all/20260729/134388019/1",
-"title_key": "中스타트업문샷AI엔비디아블랙웰추가확보",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.mt.co.kr/tech/2026/07/29/2026072911211521553",
-"title_key": "문닫던전화국의반전AI시대알짜부동산됐다",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.donga.com/news/Economy/article/all/20260729/134388094/1",
-"title_key": "메타블랙록과손잡았다20조규모AI데이터",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.news1.kr/realestate/general/6243084",
-"title_key": "롯데건설건설현장에자율주행바닥청소로봇도",
-"sent": "2026-07-29"
-},
-{
-"link": "https://biz.sbs.co.kr/article_hub/20000325424?division=NAVER",
-"title_key": "구글딥마인드노벨상수상알파폴드팀해체",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.chosun.com/economy/tech_it/2026/07/29/BS7GKZCYERHNJEXIIFHDZSNXP4/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
-"title_key": "한국은세계서가장역동적인개발자시장애플국",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.ddaily.co.kr/page/view/2026072916095250831",
-"title_key": "애플소규모개발사도출시첫날부터글로벌무대",
-"sent": "2026-07-29"
-},
-{
-"link": "http://www.thevaluenews.co.kr/news/view.php?idx=200382",
-"title_key": "더밸류브리핑오늘의카드업계소식삼성카드B",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.mt.co.kr/tech/2026/07/29/2026072914515914499",
-"title_key": "애플개발도구로글로벌생태계선순환인앱결제",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.edaily.co.kr/news/newspath.asp?newsid=05251286645519440",
-"title_key": "소창업확산에도심외곽진격하는공유오피스기",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.seoultimes.news/news/article.html?no=2000098275",
-"title_key": "BC카드몽고DB와맞손생성형AI데이터환",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.newspim.com/news/view/20260729000977",
-"title_key": "AI부동산랭킹용산구용산시티파크2단지2",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.g-enews.com/view.php?ud=202607291440491600e30fcb1ba8_1",
-"title_key": "BC카드원하는상권정보찾아주고맞춤형할인",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.newspim.com/news/view/20260729000845",
-"title_key": "미국특징주애플신형홈허브홈팟미니로스마트",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.e-science.co.kr/news/articleView.html?idxno=132604",
-"title_key": "BC카드AI데이터플랫폼고도화AINat",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.dt.co.kr/article/12075274?ref=naver",
-"title_key": "삼성물산스마트빌딩플랫폼에라이너AI검색",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.etnews.com/20260729000249",
-"title_key": "해설SK하이닉스빅테크메모리수요견조10",
-"sent": "2026-07-29"
-},
-{
-"link": "https://biz.heraldcorp.com/article/10824543?ref=naver",
-"title_key": "LS일렉AI데이터센터전력안정화방법찾았",
-"sent": "2026-07-29"
-},
-{
-"link": "https://www.dt.co.kr/article/12075518?ref=naver",
-"title_key": "AI호황올라탄다HD한국조선해양힘센엔진",
-"sent": "2026-07-29"
-},
-{
 "link": "https://www.etnews.com/20260730000348",
 "title_key": "문페이챗GPT클로드서결제하는페이박스출",
 "sent": "2026-07-30"
@@ -1189,6 +1004,156 @@
 "link": "https://biz.heraldcorp.com/article/10831130?ref=naver",
 "title_key": "KAIST대용량배터리소재생산시간67A",
 "sent": "2026-08-05"
+},
+{
+"link": "http://www.fnnews.com/news/202608060809333381",
+"title_key": "앤트로픽클로드전용자체칩개발나선다글로벌",
+"sent": "2026-08-06"
+},
+{
+"link": "https://magazine.hankyung.com/business/article/202608067708b",
+"title_key": "AI기지국까지노린다엔비디아통신장비시장",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.etnews.com/20260806000015",
+"title_key": "메타첫AI코딩에이전트뮤즈코드공개",
+"sent": "2026-08-06"
+},
+{
+"link": "https://view.asiae.co.kr/article/2026080608404671979",
+"title_key": "삼성전자차세대메모리FMS2026서2개",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.hankyung.com/article/202608067624H",
+"title_key": "삼성전자SK하이닉스주주환원확대방안검토",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.sedaily.com/article/20076290?ref=naver",
+"title_key": "철강석유화학주력산업에AI로봇年1000",
+"sent": "2026-08-06"
+},
+{
+"link": "https://view.asiae.co.kr/article/2026080516132687812",
+"title_key": "지난해한국애플앱스토어국내매출38조원5",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.mk.co.kr/article/12118767",
+"title_key": "AI데이터센터급성장에앤트로픽지분가치S",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.dnews.co.kr/uhtml/view.jsp?idxno=202608051528468020926",
+"title_key": "르포무동력보조ㆍ살수드론스마트건설빅쇼",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.hankyung.com/article/202608057337i",
+"title_key": "앤스로픽클로드용자체칩개발위해사내팀구축",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.etnews.com/20260805000392",
+"title_key": "GH양주안성건설현장에스마트휴게시설3기",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.chosun.com/economy/money/2026/08/06/Q4DXI3VDDRGM5DEGLYXRQVKLNI/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
+"title_key": "구글핵심인재4명이떠나자시총1900억달",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.pinpointnews.co.kr/news/articleView.html?idxno=474841",
+"title_key": "KT전이용자에AI스팸차단서비스무료제공",
+"sent": "2026-08-06"
+},
+{
+"link": "https://daily.hankooki.com/news/articleView.html?idxno=1393225",
+"title_key": "KTAI스팸차단전고객확대적용사각지대해",
+"sent": "2026-08-06"
+},
+{
+"link": "https://biz.heraldcorp.com/article/10832399?ref=naver",
+"title_key": "KTAI스팸차단전고객확대신규변형스팸2",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.mt.co.kr/stock/2026/08/06/2026080608145558247",
+"title_key": "SK텔레콤2분기실적양호앤트로픽지분반영",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.edaily.co.kr/news/newspath.asp?newsid=03237366645544696",
+"title_key": "엔비디아글로벌AI업계리더들과에이전틱A",
+"sent": "2026-08-06"
+},
+{
+"link": "http://www.inews24.com/view/1992380",
+"title_key": "세계각국소버린AI엔비디아에종속한국은예",
+"sent": "2026-08-06"
+},
+{
+"link": "https://realty.chosun.com/site/data/html_dir/2026/08/05/2026080502159.html",
+"title_key": "글로벌1위공유오피스에속았다1년간임대료",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.seoul.co.kr/news/economy/industry/2026/08/06/20260806006004?wlog_tag3=naver",
+"title_key": "스마트건설기술한자리에혁신기업과상생의미",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.segye.com/newsView/20260805519909?OutUrl=naver",
+"title_key": "청소로봇LG홈봇체험해보세요",
+"sent": "2026-08-06"
+},
+{
+"link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8629343&ref=A",
+"title_key": "시급4만원청소로봇집안일솜씨는이슈클릭",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.edaily.co.kr/news/newspath.asp?newsid=05120086645544368",
+"title_key": "옥상물탱크가사무실에영감샘솟는패스트파이",
+"sent": "2026-08-06"
+},
+{
+"link": "https://biz.sbs.co.kr/article_hub/20000326837?division=NAVER",
+"title_key": "삼성DX적자속새수익원스마트홈유료화",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.newsway.co.kr/news/view?ud=2026080511401288138",
+"title_key": "적자늪베트남에24억실탄쏜BC카드해외사",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.ebn.co.kr/news/articleView.html?idxno=1719201",
+"title_key": "KTHCN코렐상대소송1심서패소13억반",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.mt.co.kr/finance/2026/08/06/2026080510141434043",
+"title_key": "BC카드이달까지여름휴가철워터파크할인이",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.mk.co.kr/article/12117908",
+"title_key": "삼성전자온디바이스AI에집중하이닉스데이",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.chosun.com/economy/money/2026/08/06/CTWLQ64A7NCVLCFBTSLVVZ47TA/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
+"title_key": "빅테크와AI데이터센터협력美에너지시장진",
+"sent": "2026-08-06"
+},
+{
+"link": "https://www.mt.co.kr/stock/2026/08/06/2026080608425234285",
+"title_key": "한울반도체차세대검사장비전략공개AI로M",
+"sent": "2026-08-06"
 }
 ]
 }
