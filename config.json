@@ -14,7 +14,7 @@
     "port": 587,
     "useStartTls": true,
     "from": "kowonsik17710@gmail.com",
-    "fromDisplayName": "Tech News Bot",
+    "fromDisplayName": "Tech News Agent",
     "username": "kowonsik17710@gmail.com",
     "passwordEnvVar": "TECHNEWS_SMTP_PWD"
   },
