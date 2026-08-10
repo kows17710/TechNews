@@ -100,28 +100,78 @@ def title_matches(keyword, title):
 
 
 # 근접 중복 판정용: 제목 편집 표시어(내용과 무관)
-_DEDUP_STOP = {"단독", "종합", "속보", "포토", "영상", "인터뷰", "오늘", "내일", "그래픽"}
+_DEDUP_STOP = {"단독", "종합", "속보", "포토", "영상", "인터뷰", "오늘", "내일", "그래픽", "이슈"}
+
+# 일반어(주제어·회사명·상투어). 이 단어들을 공유하는 건 '같은 사건'의 증거가 아니다.
+# → 이걸 제외한 '고유명사'를 공유해야 같은 사건으로 본다.
+_BASE_GENERIC = {
+    # 기술 주제어
+    "데이터센터", "인공지능", "빅데이터", "클라우드", "메타버스", "플랫폼", "스마트폰", "반도체",
+    "메모리", "서비스", "시스템", "솔루션", "설루션", "프로젝트", "스타트업", "비즈니스", "네트워크",
+    "소프트웨어", "모빌리티", "블록체인", "알고리즘", "고객센터", "챗봇", "콘텐츠", "디지털", "온라인",
+    "모바일", "애플리케이션", "스마트", "자율주행", "전기차", "배터리", "통신", "요금제", "상담",
+    # 회사·기관(서로 다른 기사에 공통 등장)
+    "삼성전자", "삼성", "현대차", "현대차그룹", "현대", "현대위아", "기아", "엘지", "유플러스",
+    "네이버", "카카오", "구글", "애플", "메타", "아마존", "엔비디아", "마이크로소프트", "오픈ai",
+    "앤트로픽", "텔레콤", "스카이라이프", "농협",
+    # 부동산 주제어
+    "부동산", "아파트", "주택", "신도시", "분양", "재건축", "재개발", "청약", "집값", "매매",
+    "전세", "임대", "단지", "공동주택", "도시", "건설", "시공", "빌딩", "오피스", "상가",
+    # 뉴스 상투어
+    "대표", "회장", "사장", "부회장", "정부", "서울시", "국내", "최초", "공개", "출시", "도입",
+    "확대", "강화", "개발", "투자", "협약", "업무협약", "전략", "성장", "실적", "계획", "추진",
+    "가동", "구축", "완료", "전환", "검토", "발표", "선정", "지원", "사업", "기업", "그룹",
+    "관련", "이번", "지난", "위해", "통해", "본격", "시장", "기술", "고도화",
+}
+
+
+def build_generic(cfg):
+    """일반어 집합 = 기본 목록 + 모든 카테고리/인사이트 키워드 토큰.
+    (카테고리 기사들은 그 카테고리 키워드를 공통으로 가지므로 판별 근거에서 제외)"""
+    g = set(_BASE_GENERIC)
+    clip = cfg["clipping"]
+    kw_lists = [c.get("keywords", []) for c in clip.get("categories", [])]
+    kw_lists.append((clip.get("insight") or {}).get("keywords", []))
+    for lst in kw_lists:
+        for kw in lst:
+            for w in re.findall(r"[0-9A-Za-z가-힣]+", kw.lower()):
+                if len(w) >= 2:
+                    g.add(w)
+    return g
 
 
 def title_tokens(title):
-    """제목에서 유의미한 단어 집합을 뽑는다 (2글자 이상, 표시어 제외)."""
+    """제목의 유의미한 단어 집합 (2글자 이상, 표시어 제외)."""
     words = re.findall(r"[0-9A-Za-z가-힣]+", (title or "").lower())
     return frozenset(w for w in words if len(w) >= 2 and w not in _DEDUP_STOP)
 
 
-def is_near_duplicate(toks, existing_tokensets, threshold):
-    """제목이 달라도 단어 구성이 크게 겹치면(같은 사건) 중복으로 본다."""
-    if not toks:
-        return False
-    for ex in existing_tokensets:
-        if not ex:
-            continue
-        inter = len(toks & ex)
-        if inter == 0:
-            continue
-        jac = inter / len(toks | ex)
-        if jac >= threshold or (inter >= 4 and jac >= 0.4):
+def distinctive_tokens(title, generic):
+    """제목의 '고유명사' 후보 (3글자 이상, 표시어·일반어 제외)."""
+    words = re.findall(r"[0-9A-Za-z가-힣]+", (title or "").lower())
+    return frozenset(w for w in words if len(w) >= 3 and w not in _DEDUP_STOP and w not in generic)
+
+
+def _shares_distinctive(da, db):
+    for a in da:
+        for b in db:
+            if a == b or a in b or b in a:  # 농협은행 ⊂ nh농협은행 등
+                return True
+    return False
+
+
+def is_near_duplicate(toks, dist, existing_meta, threshold):
+    """같은 사건 판정:
+    (1) 핵심 고유명사를 공유하거나, (2) 전체 단어 유사도가 높으면 중복."""
+    for ex_toks, ex_dist in existing_meta:
+        if dist and ex_dist and _shares_distinctive(dist, ex_dist):
             return True
+        if toks and ex_toks:
+            inter = len(toks & ex_toks)
+            if inter:
+                jac = inter / len(toks | ex_toks)
+                if jac >= threshold or (inter >= 4 and jac >= 0.4):
+                    return True
     return False
 
 
@@ -150,7 +200,8 @@ def search_news(cfg, seed_links=None, seed_titles=None):
 
     seen_links = set(seed_links or ())
     seen_titles = set(seed_titles or ())
-    seen_tokens = []
+    seen_meta = []
+    generic = build_generic(cfg)
     dedup_thr = float(clip.get("dedupSimilarity", 0.6))
     collected = []
 
@@ -196,11 +247,12 @@ def search_news(cfg, seed_links=None, seed_titles=None):
             if any(ex and ex.lower() in title.lower() for ex in cat_excludes):
                 continue
             toks = title_tokens(title)
-            if is_near_duplicate(toks, seen_tokens, dedup_thr):
+            dist = distinctive_tokens(title, generic)
+            if is_near_duplicate(toks, dist, seen_meta, dedup_thr):
                 continue
             seen_links.add(link)
             seen_titles.add(tkey)
-            seen_tokens.append(toks)
+            seen_meta.append((toks, dist))
             score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
             kept.append({"category": cat_name, "keyword": keyword, "title": title, "desc": desc,
                          "link": link, "pub": pub, "domain": domain, "score": score})
@@ -255,7 +307,8 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
     fb_hours = clip.get("fallbackHours")
     seen_links = {a["link"] for a in articles} | set(seed_links or ())
     seen_titles = {title_key(a["title"]) for a in articles} | set(seed_titles or ())
-    seen_tokens = [title_tokens(a["title"]) for a in articles]
+    generic = build_generic(cfg)
+    seen_meta = [(title_tokens(a["title"]), distinctive_tokens(a["title"], generic)) for a in articles]
     dedup_thr = float(clip.get("dedupSimilarity", 0.6))
 
     def run(cut):
@@ -297,11 +350,12 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
                 if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
                     continue
                 toks = title_tokens(title)
-                if is_near_duplicate(toks, seen_tokens, dedup_thr):
+                dist = distinctive_tokens(title, generic)
+                if is_near_duplicate(toks, dist, seen_meta, dedup_thr):
                     continue
                 seen_links.add(link)
                 seen_titles.add(tkey)
-                seen_tokens.append(toks)
+                seen_meta.append((toks, dist))
                 score = 1 if any(p in domain for p in clip["preferredPress"]) else 0
                 res.append({"keyword": keyword, "title": title, "desc": desc,
                             "link": link, "pub": pub, "domain": domain, "score": score})
