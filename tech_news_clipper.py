@@ -82,6 +82,22 @@ def get_domain(url):
         return ""
 
 
+def is_excluded(title, excludes):
+    """제목에 제외어가 있으면 True.
+    전부 대문자인 약어(ETF, HBM 등)는 대소문자를 구분해 매칭한다
+    (소문자 'etf' 가 Netflix 같은 단어 안에 걸리는 오탐 방지)."""
+    low = title.lower()
+    for ex in excludes:
+        if not ex:
+            continue
+        if re.fullmatch(r"[A-Z]{2,}", ex):
+            if ex in title:
+                return True
+        elif ex.lower() in low:
+            return True
+    return False
+
+
 def title_matches(keyword, title):
     """키워드의 모든 토큰이 제목 안에 실제로 존재할 때만 True.
     본문에만 스쳐 지나가는 무관한 기사(예: 갤럭시 기사 속 '스마트시티' 언급)를 걸러낸다.
@@ -244,7 +260,7 @@ def search_news(cfg, seed_links=None, seed_titles=None):
             tkey = title_key(title)
             if link in seen_links or tkey in seen_titles:
                 continue
-            if any(ex and ex.lower() in title.lower() for ex in cat_excludes):
+            if is_excluded(title, cat_excludes):
                 continue
             toks = title_tokens(title)
             dist = distinctive_tokens(title, generic)
@@ -347,7 +363,7 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
                 tkey = title_key(title)
                 if link in seen_links or tkey in seen_titles:
                     continue
-                if any(ex and ex.lower() in title.lower() for ex in clip["excludeKeywords"]):
+                if is_excluded(title, clip["excludeKeywords"]):
                     continue
                 toks = title_tokens(title)
                 dist = distinctive_tokens(title, generic)
