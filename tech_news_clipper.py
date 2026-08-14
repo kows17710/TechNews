@@ -98,6 +98,77 @@ def is_excluded(title, excludes):
     return False
 
 
+def _decode_bytes(raw, ctype):
+    enc = None
+    m = re.search(rb'charset=["\']?([\w\-]+)', raw[:3000], re.I)
+    if m:
+        enc = m.group(1).decode("ascii", "ignore")
+    if not enc and ctype:
+        m2 = re.search(r'charset=([\w\-]+)', ctype, re.I)
+        if m2:
+            enc = m2.group(1)
+    for e in (enc, "utf-8", "euc-kr", "cp949"):
+        if e:
+            try:
+                return raw.decode(e)
+            except Exception:
+                continue
+    return raw.decode("utf-8", "replace")
+
+
+def fetch_full_title(url, fallback):
+    """기사 원문 페이지의 og:title(없으면 <title>)로 전체 제목을 가져온다.
+    실패하면 fallback(네이버의 잘린 제목) 그대로 반환."""
+    if not url:
+        return fallback
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+            "Accept-Language": "ko,en;q=0.8",
+        })
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            raw = resp.read(300000)
+            ctype = resp.headers.get("Content-Type", "")
+    except Exception:
+        return fallback
+
+    text = _decode_bytes(raw, ctype)
+    title = None
+    for pat in (r'<meta[^>]+property=["\']og:title["\'][^>]*content=["\']([^"\']+)["\']',
+                r'<meta[^>]+content=["\']([^"\']+)["\'][^>]*property=["\']og:title["\']'):
+        m = re.search(pat, text, re.I | re.S)
+        if m:
+            title = m.group(1)
+            break
+    if not title:
+        m = re.search(r'<title[^>]*>([^<]+)</title>', text, re.I | re.S)
+        if not m:
+            return fallback
+        title = m.group(1)
+        # <title> 흔한 접미사 제거: " - 매체명" / " | 매체명" 등
+        title = re.sub(r"\s*[|\-–—:]\s*[^|\-–—:]{1,25}$", "", title)
+    return re.sub(r"\s+", " ", html.unescape(title)).strip() or fallback
+
+
+def enrich_full_titles(items):
+    """잘린 제목(…/... 로 끝남)만 원문에서 전체 제목으로 보강한다."""
+    fixed = 0
+    for a in items:
+        t = a.get("title", "")
+        if not (t.endswith("…") or t.endswith("...") or t.endswith("..")):
+            continue
+        full = fetch_full_title(a.get("link", ""), t)
+        if not full or full == t:
+            continue
+        # 안전장치: 보강 제목이 원래 제목의 앞부분을 포함해야 교체 (엉뚱한 og:title 방지)
+        base = re.sub(r"\s+", "", t.rstrip(". …"))[:10]
+        if base and base in re.sub(r"\s+", "", full) and len(full) >= len(t) - 3:
+            a["title"] = full
+            fixed += 1
+    if fixed:
+        log(f"제목 보강: {fixed}건 (원문 전체 제목)")
+
+
 def title_matches(keyword, title):
     """키워드의 모든 토큰이 제목 안에 실제로 존재할 때만 True.
     본문에만 스쳐 지나가는 무관한 기사(예: 갤럭시 기사 속 '스마트시티' 언급)를 걸러낸다.
@@ -640,6 +711,8 @@ def main():
 
     log(f"총 {len(articles)} 건 선별 완료")
     insights = search_insight(cfg, articles, hist_links, hist_titles)
+    enrich_full_titles(articles)
+    enrich_full_titles(insights)
     body = build_html(cfg, articles, insights)
     subject = f"{cfg['mail']['subjectPrefix']} {datetime.now(KST):%Y-%m-%d} ({len(articles)}건)"
 
