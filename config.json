@@ -112,10 +112,11 @@
       "thelec.kr"
     ],
     "insight": {
-      "keywords": ["생성형 AI", "AI 에이전트", "AI 데이터센터", "온디바이스 AI", "AI 반도체", "빅테크", "AI 규제"],
+      "keywords": ["프롭테크", "부동산", "스마트시티", "AI", "디지털 전환", "부동산 개발", "빅테크"],
       "count": 3,
-      "descMaxLen": 240,
-      "aiSummary": true,
+      "descMaxLen": 300,
+      "columnMode": true,
+      "aiSummary": false,
       "model": "claude-opus-5"
     }
   }

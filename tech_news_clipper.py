@@ -276,6 +276,17 @@ def is_near_duplicate(toks, dist, existing_meta, threshold):
     return False
 
 
+# 칼럼/오피니언 기사 판별용 제목 표식
+_COLUMN_MARKERS = ["칼럼", "기고", "오피니언", "시론", "기자수첩", "데스크", "제언",
+                   "열린세상", "특별기고", "기고문", "현장에서", "전문가 진단", "시평"]
+
+
+def is_column(title, markers):
+    """제목에 칼럼/오피니언 표식이 있으면 True."""
+    t = title or ""
+    return any(m and m in t for m in markers)
+
+
 def load_config():
     path = os.path.join(HERE, "config.json")
     with open(path, "r", encoding="utf-8") as f:
@@ -411,6 +422,8 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
     generic = build_generic(cfg)
     seen_meta = [(title_tokens(a["title"]), distinctive_tokens(a["title"], generic)) for a in articles]
     dedup_thr = float(clip.get("dedupSimilarity", 0.6))
+    col_mode = bool(ins.get("columnMode"))
+    col_markers = ins.get("columnMarkers") or _COLUMN_MARKERS
 
     def run(cut):
         res = []
@@ -440,6 +453,8 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
                 if pub < cut:
                     continue
                 if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
+                    continue
+                if col_mode and not is_column(title, col_markers):
                     continue
                 link = item.get("originallink") or item.get("link") or ""
                 domain = get_domain(link)
@@ -694,8 +709,10 @@ def build_html(cfg, articles, insights=None, insight_text=None):
             f'<ul style="margin:0;padding-left:20px;">{rows}</ul></div>'
         )
     elif insights:
+        _col = bool((cfg["clipping"].get("insight") or {}).get("columnMode"))
+        _sub = ' <span style="font-family:%s;font-size:12px;color:#888888;">(칼럼·오피니언)</span>' % F_THIN if _col else ''
         parts.append(
-            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
+            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트{_sub}</div>'
             f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
         )
         for i, a in enumerate(insights, 1):
