@@ -424,6 +424,9 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
     dedup_thr = float(clip.get("dedupSimilarity", 0.6))
     col_mode = bool(ins.get("columnMode"))
     col_markers = ins.get("columnMarkers") or _COLUMN_MARKERS
+    # 인사이트 전용 완화 옵션 (없으면 전역값 사용)
+    req_title = ins.get("requireKeywordInTitle", clip.get("requireKeywordInTitle", True))
+    major_only = ins.get("majorPressOnly", clip.get("majorPressOnly"))
 
     def run(cut):
         res = []
@@ -452,13 +455,13 @@ def search_insight(cfg, articles, seed_links=None, seed_titles=None):
                     continue
                 if pub < cut:
                     continue
-                if clip.get("requireKeywordInTitle", True) and not title_matches(keyword, title):
+                if req_title and not title_matches(keyword, title):
                     continue
                 if col_mode and not is_column(title, col_markers):
                     continue
                 link = item.get("originallink") or item.get("link") or ""
                 domain = get_domain(link)
-                if clip.get("majorPressOnly") and not any(p in domain for p in clip.get("majorPress", [])):
+                if major_only and not any(p in domain for p in clip.get("majorPress", [])):
                     continue
                 tkey = title_key(title)
                 if link in seen_links or tkey in seen_titles:

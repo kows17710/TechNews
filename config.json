@@ -112,10 +112,12 @@
       "thelec.kr"
     ],
     "insight": {
-      "keywords": ["프롭테크", "부동산", "스마트시티", "AI", "디지털 전환", "부동산 개발", "빅테크"],
+      "keywords": ["프롭테크", "부동산", "스마트시티", "AI", "디지털 전환", "부동산 개발", "빅테크", "도시"],
       "count": 3,
       "descMaxLen": 300,
       "columnMode": true,
+      "requireKeywordInTitle": false,
+      "majorPressOnly": false,
       "aiSummary": false,
       "model": "claude-opus-5"
     }
