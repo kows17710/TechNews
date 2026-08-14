@@ -538,7 +538,68 @@ def daily_greeting():
     return greeting, quote
 
 
-def build_html(cfg, articles, insights=None):
+def generate_ai_insight(cfg, articles, insights):
+    """오늘 수집한 기사들을 종합해 '부동산 개발 관점의 AICT 인사이트'를 Claude로 도출.
+    실패하거나 비활성/키 없음이면 None 반환(→ 기존 기사형 인사이트로 폴백)."""
+    ins_cfg = cfg["clipping"].get("insight") or {}
+    if not ins_cfg.get("aiSummary"):
+        return None
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        log("[인사이트] ANTHROPIC_API_KEY 없음 — AI 인사이트 생략")
+        return None
+    try:
+        import anthropic
+    except Exception:
+        log("[인사이트] anthropic 패키지 없음 — AI 인사이트 생략")
+        return None
+
+    lines = []
+    for a in (articles + list(insights or [])):
+        d = (a.get("desc") or "")
+        if len(d) > 120:
+            d = d[:120]
+        lines.append(f"- {a['title']} :: {d}")
+    material = "\n".join(lines[:40])
+    if not material.strip():
+        return None
+
+    model = ins_cfg.get("model", "claude-opus-5")
+    system = (
+        "당신은 부동산 개발 회사의 전략 애널리스트입니다. 오늘의 테크·부동산 뉴스 헤드라인을 "
+        "종합해, '부동산 개발 관점의 AICT(AI·ICT)' 측면에서 지금 이슈가 되는 핵심 흐름과 시사점을 도출합니다."
+    )
+    prompt = (
+        "아래는 오늘 수집된 테크·부동산 뉴스 헤드라인과 요약입니다.\n\n"
+        f"{material}\n\n"
+        "이 내용을 바탕으로 '부동산 개발 관점에서 지금 주목해야 할 AICT 인사이트'를 3~4개의 짧은 불릿으로 "
+        "도출해 주세요. 규칙:\n"
+        "- 각 불릿은 한국어 한 문장. '무엇이 이슈이고 부동산 개발에 왜 중요한가'가 드러나게.\n"
+        "- 기사 단순 나열이 아니라 종합적 시사점 위주로.\n"
+        "- 불릿 기호(-)만 사용하고 군더더기·서론·맺음말 없이 불릿만 출력."
+    )
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model=model,
+            max_tokens=1200,
+            system=system,
+            thinking={"type": "adaptive"},
+            output_config={"effort": "medium"},
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = "".join(b.text for b in resp.content if b.type == "text").strip()
+        if text:
+            log(f"[인사이트] AI 인사이트 생성 완료 ({len(text)}자)")
+            return text
+        log("[인사이트] AI 인사이트 응답이 비어 있음")
+        return None
+    except Exception as e:
+        log(f"[인사이트] AI 인사이트 생성 실패: {e}")
+        return None
+
+
+def build_html(cfg, articles, insights=None, insight_text=None):
     e = html.escape
     today = datetime.now(KST).strftime("%Y년 %m월 %d일")
     n = len(articles)
@@ -619,8 +680,20 @@ def build_html(cfg, articles, insights=None):
 
     parts.append("</table>")
 
-    # ── 오늘자 테크 인사이트 (위 표와 별개로, 지금 이슈가 되는 테크 기사) ──
-    if insights:
+    # ── 오늘자 테크 인사이트 ──
+    if insight_text:
+        # AI가 도출한 부동산 개발 관점 AICT 인사이트 (기사 나열 아님)
+        items = [re.sub(r"^\s*[-•*]\s*", "", ln).strip()
+                 for ln in insight_text.splitlines() if ln.strip()]
+        rows = "".join(
+            f'<li style="margin:7px 0;line-height:1.6;">{e(it)}</li>' for it in items
+        )
+        parts.append(
+            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트 <span style="font-family:{F_THIN};font-size:12px;color:#888888;">(부동산 개발 관점 AICT)</span></div>'
+            f'<div style="border:1.5px solid #000000;padding:12px 16px;font-family:{F_MEDIUM};font-size:13px;color:#222222;">'
+            f'<ul style="margin:0;padding-left:20px;">{rows}</ul></div>'
+        )
+    elif insights:
         parts.append(
             f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
             f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
@@ -724,7 +797,8 @@ def main():
     insights = search_insight(cfg, articles, hist_links, hist_titles)
     enrich_full_titles(articles)
     enrich_full_titles(insights)
-    body = build_html(cfg, articles, insights)
+    insight_text = generate_ai_insight(cfg, articles, insights)
+    body = build_html(cfg, articles, insights, insight_text)
     subject = f"{cfg['mail']['subjectPrefix']} {datetime.now(KST):%Y-%m-%d} ({len(articles)}건)"
 
     if os.environ.get("PREVIEW") == "1":

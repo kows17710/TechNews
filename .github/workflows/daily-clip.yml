@@ -31,11 +31,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install deps
+        run: pip install --quiet anthropic
+
       - name: Run clipper
         env:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PREVIEW: ${{ github.event.inputs.preview == 'true' && '1' || '' }}
         run: python tech_news_clipper.py
 
