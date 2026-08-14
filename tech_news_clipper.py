@@ -74,6 +74,20 @@ def clean_text(text):
     return re.sub(r"\s+", " ", t).strip()
 
 
+def clean_ending(text, max_len=500):
+    """설명을 완전한 문장에서 끝맺는다.
+    네이버가 붙인 말줄임(…/...)은 제거하고, 마지막 문장부호(. ! ?)까지만 남긴다.
+    (숫자 소수점 '3.3' 등은 문장 끝으로 보지 않는다)"""
+    t = re.sub(r"\s+", " ", (text or "")).strip()
+    t = re.sub(r"[.\s…]+$", "", t)          # 끝의 말줄임·공백·마침표 제거
+    if len(t) > max_len:
+        t = t[:max_len]
+    ends = [m.end() for m in re.finditer(r'[가-힣A-Za-z0-9%”’")\]][.!?](?=\s|$)', t + " ")]
+    if ends and ends[-1] >= 40:
+        return t[:ends[-1]].strip()
+    return t
+
+
 def get_domain(url):
     try:
         host = urllib.parse.urlparse(url).netloc
@@ -607,15 +621,12 @@ def build_html(cfg, articles, insights=None):
 
     # ── 오늘자 테크 인사이트 (위 표와 별개로, 지금 이슈가 되는 테크 기사) ──
     if insights:
-        desc_max = int((cfg["clipping"].get("insight") or {}).get("descMaxLen", 240))
         parts.append(
             f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트</div>'
             f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
         )
         for i, a in enumerate(insights, 1):
-            desc = a["desc"]
-            if len(desc) > desc_max:
-                desc = desc[:desc_max] + "…"
+            desc = clean_ending(a["desc"])
             press = press_name(a["domain"])
             when = a["pub"].strftime("%m/%d %H:%M")
             parts.append(f"""
