@@ -116,7 +116,7 @@
       "count": 3,
       "descMaxLen": 300,
       "columnMode": true,
-      "requireKeywordInTitle": false,
+      "requireKeywordInTitle": true,
       "majorPressOnly": false,
       "aiSummary": false,
       "model": "claude-opus-5"
