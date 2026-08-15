@@ -7,7 +7,8 @@
     "to": "hanchul.bae@kt.com, wr.lee@kt.com, jungil.moon@kt.com, juhee.sun@kt.com, kim.sanghyun@kt.com, byeonghyun.jeon@kt.com, thegyoon.han@kt.com, sm.cho@kt.com, gs.jeong@kt.com, bc.pak@kt.com, da-hye.lee@kt.com, haeyeon.oh@kt.com, sooho.huh@kt.com, mh.im@kt.com, kim.sungho@kt.com, yeshik.lee@kt.com, yooseon.kim@kt.com, ty.yoo@kt.com, hjpg.kim@kt.com, yseok.choi@kt.com, jgu.kim@kt.com, junhyung.son@kt.com, cj.jeon@kt.com, hoons.kim@kt.com, donghyeok.lim@kt.com, hyunki.seol@kt.com, chris.song@kt.com, sc.hong@kt.com, kim.doohyeon@kt.com, jihhhhh.kim@kt.com, kim.jun@kt.com, tony.lee415@kt.com, jongmin.chu@kt.com, hwang.suhan@kt.com, archinfo.lee@kt.com, wonsik.ko@kt.com, linked.jun@kt.com, hoon.lee@kt.com, yeonwook.kim@kt.com, youngjoe.kim@kt.com, sehoon.baek@kt.com, paul.lee@kt.com, shin.ts@kt.com, jy.jang@kt.com, sy.hwang@kt.com, sh.park1@kt.com, sanguk.shin@kt.com, hoon.shin@kt.com, bc2.jung@kt.com, sh.lee1@kt.com",
     "cc": "",
     "bcc": "",
-    "subjectPrefix": "[Tech News]"
+    "subjectPrefix": "[Tech News]",
+    "skipWeekends": true
   },
   "smtp": {
     "host": "smtp.gmail.com",

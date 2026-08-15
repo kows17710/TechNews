@@ -784,6 +784,12 @@ def send_mail(cfg, subject, body_html):
 def main():
     cfg = load_config()
 
+    # 주말(토·일)은 발송하지 않음 (미리보기 모드는 예외 — 테스트 가능)
+    if cfg["mail"].get("skipWeekends", True) and os.environ.get("PREVIEW") != "1":
+        if datetime.now(KST).weekday() >= 5:  # 5=토, 6=일
+            log("주말(토/일) — 발송하지 않고 종료.")
+            return
+
     # 진단: 각 Secret 이 전달됐는지(값은 노출하지 않고 길이만) 출력
     def present(v):
         return f"있음(len={len(v)})" if v else "❌ 없음/빈값"
