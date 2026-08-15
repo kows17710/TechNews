@@ -698,7 +698,7 @@ def build_html(cfg, articles, insights=None, insight_text=None):
 
     parts.append("</table>")
 
-    # ── 오늘자 테크 인사이트 ──
+    # ── 오늘자 인사이트 ──
     if insight_text:
         # AI가 도출한 부동산 개발 관점 AICT 인사이트 (기사 나열 아님)
         items = [re.sub(r"^\s*[-•*]\s*", "", ln).strip()
@@ -707,7 +707,7 @@ def build_html(cfg, articles, insights=None, insight_text=None):
             f'<li style="margin:7px 0;line-height:1.6;">{e(it)}</li>' for it in items
         )
         parts.append(
-            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트 <span style="font-family:{F_THIN};font-size:12px;color:#888888;">(부동산 개발 관점 AICT)</span></div>'
+            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 인사이트 <span style="font-family:{F_THIN};font-size:12px;color:#888888;">(부동산 개발 관점 AICT)</span></div>'
             f'<div style="border:1.5px solid #000000;padding:12px 16px;font-family:{F_MEDIUM};font-size:13px;color:#222222;">'
             f'<ul style="margin:0;padding-left:20px;">{rows}</ul></div>'
         )
@@ -715,7 +715,7 @@ def build_html(cfg, articles, insights=None, insight_text=None):
         _col = bool((cfg["clipping"].get("insight") or {}).get("columnMode"))
         _sub = ' <span style="font-family:%s;font-size:12px;color:#888888;">(칼럼·오피니언)</span>' % F_THIN if _col else ''
         parts.append(
-            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 테크 인사이트{_sub}</div>'
+            f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 인사이트{_sub}</div>'
             f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:13px;">'
         )
         for i, a in enumerate(insights, 1):
