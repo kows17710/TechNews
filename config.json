@@ -8,7 +8,7 @@
     "cc": "",
     "bcc": "",
     "subjectPrefix": "[Tech News]",
-    "skipWeekends": true
+    "skipWeekends": false
   },
   "smtp": {
     "host": "smtp.gmail.com",
