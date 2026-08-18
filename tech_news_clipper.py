@@ -590,11 +590,14 @@ def generate_ai_insight(cfg, articles, insights):
     prompt = (
         "아래는 오늘 수집된 테크·부동산 뉴스 헤드라인과 요약입니다.\n\n"
         f"{material}\n\n"
-        "이 내용을 바탕으로 '부동산 개발 관점에서 지금 주목해야 할 AICT 인사이트'를 3~4개의 짧은 불릿으로 "
+        "이 내용을 바탕으로 '부동산 개발 관점에서 지금 주목해야 할 AICT 인사이트'를 3~4개 "
         "도출해 주세요. 규칙:\n"
-        "- 각 불릿은 한국어 한 문장. '무엇이 이슈이고 부동산 개발에 왜 중요한가'가 드러나게.\n"
+        "- 각 항목은 '핵심요지 || 설명' 형식으로 한 줄에 출력한다. 구분자는 반드시 ' || '.\n"
+        "- '핵심요지'는 20자 이내의 짧은 명사구(제목처럼).\n"
+        "- '설명'은 40자 이내의 짧은 한 문장. 길면 두 문장으로 나눠도 되지만 각 문장은 40자 이내로.\n"
+        "- 한 문장이 길어지지 않게 짧고 명료하게 끊어 쓴다. '무엇이 이슈이고 부동산 개발에 왜 중요한가'가 드러나게.\n"
         "- 기사 단순 나열이 아니라 종합적 시사점 위주로.\n"
-        "- 불릿 기호(-)만 사용하고 군더더기·서론·맺음말 없이 불릿만 출력."
+        "- 불릿 기호(-)로 각 항목을 시작하고, 군더더기·서론·맺음말 없이 항목만 출력."
     )
     try:
         client = anthropic.Anthropic(api_key=api_key)
@@ -708,10 +711,23 @@ def build_html(cfg, articles, insights=None, insight_text=None):
             f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:14px;">'
         )
         for i, it in enumerate(items, 1):
+            # '핵심요지 || 설명' 형식 분해 (구분자 없으면 전체를 설명으로)
+            if "||" in it:
+                head, _, desc = it.partition("||")
+                head, desc = head.strip(), desc.strip()
+            else:
+                head, desc = "", it
+            # 설명이 길면 문장 단위로 끊어 읽기 편하게 줄바꿈
+            sents = [s.strip() for s in re.split(r"(?<=[.!?。])\s+", desc) if s.strip()]
+            desc_html = "<br>".join(e(s) for s in sents) if sents else e(desc)
+            cell = (
+                (f'<div style="font-family:{F_BOLD};color:#111111;margin-bottom:4px;">{e(head)}</div>' if head else '')
+                + f'<div style="font-family:{F_MEDIUM};color:#333333;">{desc_html}</div>'
+            )
             parts.append(
                 f'<tr>'
                 f'<td class="c c-num" style="border:{B};padding:10px 6px;text-align:center;vertical-align:top;width:36px;font-family:{F_BOLD};">{i}</td>'
-                f'<td class="c" style="border:{B};padding:10px 12px;line-height:1.7;font-family:{F_MEDIUM};color:#222222;">{e(it)}</td>'
+                f'<td class="c" style="border:{B};padding:10px 12px;line-height:1.75;">{cell}</td>'
                 f'</tr>'
             )
         parts.append("</table>")
