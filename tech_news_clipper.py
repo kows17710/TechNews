@@ -700,17 +700,21 @@ def build_html(cfg, articles, insights=None, insight_text=None):
 
     # ── 오늘자 인사이트 ──
     if insight_text:
-        # AI가 도출한 부동산 개발 관점 AICT 인사이트 (기사 나열 아님)
+        # AI가 도출한 부동산 개발 관점 AICT 인사이트 — 표의 행으로 구분
         items = [re.sub(r"^\s*[-•*]\s*", "", ln).strip()
                  for ln in insight_text.splitlines() if ln.strip()]
-        rows = "".join(
-            f'<li style="margin:7px 0;line-height:1.6;">{e(it)}</li>' for it in items
-        )
         parts.append(
             f'<div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:22px 0 10px 0;">○ 오늘자 인사이트 <span style="font-family:{F_THIN};font-size:12px;color:#888888;">(부동산 개발 관점 AICT)</span></div>'
-            f'<div style="border:1.5px solid #000000;padding:12px 16px;font-family:{F_MEDIUM};font-size:13px;color:#222222;">'
-            f'<ul style="margin:0;padding-left:20px;">{rows}</ul></div>'
+            f'<table class="clip" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;border:1.5px solid #000000;font-size:14px;">'
         )
+        for i, it in enumerate(items, 1):
+            parts.append(
+                f'<tr>'
+                f'<td class="c c-num" style="border:{B};padding:10px 6px;text-align:center;vertical-align:top;width:36px;font-family:{F_BOLD};">{i}</td>'
+                f'<td class="c" style="border:{B};padding:10px 12px;line-height:1.7;font-family:{F_MEDIUM};color:#222222;">{e(it)}</td>'
+                f'</tr>'
+            )
+        parts.append("</table>")
     elif insights:
         _col = bool((cfg["clipping"].get("insight") or {}).get("columnMode"))
         _sub = ' <span style="font-family:%s;font-size:12px;color:#888888;">(칼럼·오피니언)</span>' % F_THIN if _col else ''
