@@ -593,6 +593,8 @@ def generate_ai_insight(cfg, articles, insights):
         "이 내용을 바탕으로 '부동산 개발 관점에서 지금 주목해야 할 AICT 인사이트'를 3~4개의 짧은 불릿으로 "
         "도출해 주세요. 규칙:\n"
         "- 각 불릿은 한국어 한 문장. '무엇이 이슈이고 부동산 개발에 왜 중요한가'가 드러나게.\n"
+        "- 반드시 위에 제시된 헤드라인에 근거할 것. 위 목록에 없는 소재(예: 목록에 없다면 데이터센터)는 언급하지 말 것.\n"
+        "- 불릿끼리 주제가 겹치지 않게 서로 다른 소재를 다룰 것. 같은 소재를 반복하지 말 것.\n"
         "- 기사 단순 나열이 아니라 종합적 시사점 위주로.\n"
         "- 불릿 기호(-)만 사용하고 군더더기·서론·맺음말 없이 불릿만 출력."
     )
@@ -827,7 +829,10 @@ def main():
     insights = search_insight(cfg, articles, hist_links, hist_titles)
     enrich_full_titles(articles)
     enrich_full_titles(insights)
-    insight_text = generate_ai_insight(cfg, articles, insights)
+    # AI 인사이트는 '메일에 실제로 실린 기사'만 재료로 사용한다.
+    # (insights 는 메일에 나오지 않는 별도 검색 결과라, 재료로 쓰면
+    #  본문에 없는 주제가 인사이트에만 반복 등장한다 — 폴백 용도로만 유지)
+    insight_text = generate_ai_insight(cfg, articles, None)
     body = build_html(cfg, articles, insights, insight_text)
     subject = f"{cfg['mail']['subjectPrefix']} {datetime.now(KST):%Y-%m-%d} ({len(articles)}건)"
 
