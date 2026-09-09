@@ -35,20 +35,32 @@ def title_key(title):
     return re.sub(r"[^\w가-힣]", "", title)[:20]
 
 
-def load_history():
-    """이전에 발송한 기사 이력(링크·제목키)을 불러온다."""
+def _read_history_raw():
+    """이력 파일 전체를 dict 로 읽는다(기사 이력 외 항목도 함께 보존하기 위함)."""
     try:
         with open(HISTORY_FILE, encoding="utf-8") as f:
-            items = (json.load(f) or {}).get("items", [])
+            return json.load(f) or {}
     except Exception:
-        items = []
+        return {}
+
+
+def load_recent_quotes(limit=90):
+    """최근에 내보낸 '오늘의 한마디' 목록 — 같은 문장이 다시 나오지 않게 하는 데 쓴다."""
+    qs = _read_history_raw().get("quotes") or []
+    return [q for q in qs if isinstance(q, str) and q.strip()][-limit:]
+
+
+def load_history():
+    """이전에 발송한 기사 이력(링크·제목키)을 불러온다."""
+    items = _read_history_raw().get("items", [])
     links = {it.get("link") for it in items if it.get("link")}
     titles = {it.get("title_key") for it in items if it.get("title_key")}
     return links, titles, items
 
 
-def save_history(cfg, prev_items, sent_items):
-    """발송한 기사들을 이력에 추가하고, 오래된 항목은 정리해 저장한다."""
+def save_history(cfg, prev_items, sent_items, quote=None):
+    """발송한 기사들을 이력에 추가하고, 오래된 항목은 정리해 저장한다.
+    오늘 쓴 '한마디'도 함께 기록해 다음 회차에 같은 문장이 나오지 않게 한다."""
     days = int(cfg["clipping"].get("historyDays", 7))
     today = datetime.now(KST).strftime("%Y-%m-%d")
     cutoff = (datetime.now(KST) - timedelta(days=days)).strftime("%Y-%m-%d")
@@ -58,9 +70,15 @@ def save_history(cfg, prev_items, sent_items):
         if link and link not in existing:
             kept.append({"link": link, "title_key": tkey, "sent": today})
             existing.add(link)
+    data = _read_history_raw()
+    data["items"] = kept
+    if quote:
+        qs = [q for q in (data.get("quotes") or []) if isinstance(q, str) and q != quote]
+        qs.append(quote)
+        data["quotes"] = qs[-90:]
     try:
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-            json.dump({"items": kept}, f, ensure_ascii=False, indent=0)
+            json.dump(data, f, ensure_ascii=False, indent=0)
         log(f"발송 이력 저장: 누적 {len(kept)}건 (최근 {days}일)")
     except Exception as e:
         log(f"발송 이력 저장 실패: {e}")
@@ -549,10 +567,60 @@ QUOTES = [
 ]
 
 
-def daily_greeting():
+def generate_daily_quote(cfg, recent):
+    """매일 새로운 '오늘의 한마디'를 Claude 로 만든다.
+    키가 없거나 실패하면 None 을 돌려주고, 호출부가 고정 격언으로 폴백한다."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return None
+    try:
+        import anthropic
+    except Exception:
+        return None
+
+    model = (cfg["clipping"].get("insight") or {}).get("model", "claude-opus-5")
+    avoid = "\n".join(f"- {q}" for q in recent) or "(없음)"
+    system = "당신은 직장인 대상 아침 뉴스레터의 문구를 쓰는 카피라이터입니다."
+    prompt = (
+        "부동산 개발·ICT 업계 직장인에게 보내는 아침 뉴스레터에 실을 "
+        "'오늘의 한마디'를 하나만 써 주세요. 규칙:\n"
+        "- 인생·일에 대한 짧은 격언 한 문장. 40자 이내.\n"
+        "- 실존 인물의 말을 인용하면 큰따옴표로 묶고 끝에 ' — 이름'을 붙인다. "
+        "출처가 확실하지 않으면 인용하지 말고 이름 없이 문장만 쓴다.\n"
+        "- 아래 문장들과 뜻이 겹치지 않게, 새로운 내용으로 쓴다:\n"
+        f"{avoid}\n"
+        "- 설명·서론·맺음말 없이 문장 한 줄만 출력."
+    )
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model=model,
+            max_tokens=300,
+            system=system,
+            output_config={"effort": "low"},
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = "".join(b.text for b in resp.content if b.type == "text").strip()
+        line = next((ln.strip() for ln in text.splitlines() if ln.strip()), "")
+        line = re.sub(r"^\s*[-•*]\s*", "", line).strip()
+        if line and len(line) <= 120:
+            log(f"[한마디] AI 생성 완료: {line}")
+            return line
+        log("[한마디] AI 응답이 비었거나 너무 김 — 고정 격언 사용")
+        return None
+    except Exception as e:
+        log(f"[한마디] AI 생성 실패: {e} — 고정 격언 사용")
+        return None
+
+
+def daily_greeting(quote=None, recent=()):
     now = datetime.now(KST)
     greeting = f"좋은 아침입니다! {WEEKDAY_MSG[now.weekday()]}"
-    quote = QUOTES[now.timetuple().tm_yday % len(QUOTES)]
+    if not quote:
+        # 폴백: 고정 격언 중 최근에 쓰지 않은 것을 우선 고른다
+        unused = [q for q in QUOTES if q not in set(recent)]
+        pool = unused or QUOTES
+        quote = pool[now.timetuple().tm_yday % len(pool)]
     return greeting, quote
 
 
@@ -619,7 +687,7 @@ def generate_ai_insight(cfg, articles, insights):
         return None
 
 
-def build_html(cfg, articles, insights=None, insight_text=None):
+def build_html(cfg, articles, insights=None, insight_text=None, quote=None, recent_quotes=()):
     e = html.escape
     today = datetime.now(KST).strftime("%Y년 %m월 %d일")
     n = len(articles)
@@ -635,7 +703,7 @@ def build_html(cfg, articles, insights=None, insight_text=None):
     C_HEAD = "#c9c9c9"   # 회색 헤더
     C_SUB = "#e9e9e9"    # 카테고리 소제목
     B = "1px solid #000000"
-    greeting, quote = daily_greeting()
+    greeting, quote = daily_greeting(quote, recent_quotes)
 
     parts = [f"""<html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -833,7 +901,12 @@ def main():
     # (insights 는 메일에 나오지 않는 별도 검색 결과라, 재료로 쓰면
     #  본문에 없는 주제가 인사이트에만 반복 등장한다 — 폴백 용도로만 유지)
     insight_text = generate_ai_insight(cfg, articles, None)
-    body = build_html(cfg, articles, insights, insight_text)
+    # 오늘의 한마디: 매일 새 문장을 생성하고, 최근에 쓴 문장은 피한다
+    recent_quotes = load_recent_quotes()
+    quote = generate_daily_quote(cfg, recent_quotes)
+    if not quote:
+        _, quote = daily_greeting(None, recent_quotes)
+    body = build_html(cfg, articles, insights, insight_text, quote, recent_quotes)
     subject = f"{cfg['mail']['subjectPrefix']} {datetime.now(KST):%Y-%m-%d} ({len(articles)}건)"
 
     if os.environ.get("PREVIEW") == "1":
@@ -852,7 +925,7 @@ def main():
 
     # 발송 성공 후, 이번에 보낸 기사들을 이력에 추가
     sent = [(a["link"], title_key(a["title"])) for a in (articles + insights)]
-    save_history(cfg, hist_items, sent)
+    save_history(cfg, hist_items, sent, quote)
 
 
 if __name__ == "__main__":
