@@ -1,141 +1,6 @@
 {
 "items": [
 {
-"link": "https://www.fnnews.com/news/202609040839016092",
-"title_key": "한양證파인엠텍3년기다린애플이온다실적퀀",
-"sent": "2026-09-04"
-},
-{
-"link": "http://mbn.mk.co.kr/pages/news/newsView.php?category=mbn00008&news_seq_no=5216937",
-"title_key": "인간시대의끝이도래했다오픈AI위험등급A",
-"sent": "2026-09-04"
-},
-{
-"link": "https://view.asiae.co.kr/article/2026090408282983168",
-"title_key": "세계AI서비스이례적동시장애챗GPT부터",
-"sent": "2026-09-04"
-},
-{
-"link": "https://view.asiae.co.kr/article/2026090408104088992",
-"title_key": "추정가최소6억차고에서만든잡스워즈니악첫",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.mk.co.kr/article/12143994",
-"title_key": "우리회사에선이렇게일해KT만의AI동료봤",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.fnnews.com/news/202609031819137572",
-"title_key": "BC카드골목상권소비촉진앞장서울시로컬브",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.chosun.com/economy/tech_it/2026/09/04/WI6VSP6TIFALLOAAGPQVDYDF7A/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
-"title_key": "美챗GPT클로드일제히장애AI서비스동시",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.newsis.com/view/NISX20260904_0003775989",
-"title_key": "KB증권삼성전자추가주주환원기대목표가6",
-"sent": "2026-09-04"
-},
-{
-"link": "https://it.chosun.com/news/articleView.html?idxno=2023092169469",
-"title_key": "엔비디아AI플랫폼허깅페이스130억弗인",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.mt.co.kr/tech/2026/09/04/2026090408383832986",
-"title_key": "엔비디아RTX스파크탑재PC10월출시로",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.news1.kr/photos/8087810",
-"title_key": "LG전자의AI홈이궁금해",
-"sent": "2026-09-04"
-},
-{
-"link": "https://zdnet.co.kr/view/?no=20260904082149",
-"title_key": "엔비디아유휴PCGPU로AI추론분산하는",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.newspim.com/news/view/20260903001001",
-"title_key": "기술과쩐의전쟁⑬클라우드없는메타AI투자",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.koreareport.co.kr/news/articleView.html?idxno=52614",
-"title_key": "구자균LS일렉트릭KT클라우드와맞손AI",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.seoul.co.kr/news/economy/industry/2026/09/04/20260904029002?wlog_tag3=naver",
-"title_key": "삼성LGAI홈라이프당신의패턴대로움직인",
-"sent": "2026-09-04"
-},
-{
-"link": "http://www.bizwnews.com/news/articleView.html?idxno=145216",
-"title_key": "케이뱅크BC카드와히든카드출시온라인간편",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.ddaily.co.kr/page/view/2026090323505039582",
-"title_key": "IFA2026말안해도알아서척척샤오미스",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.newspim.com/news/view/20260903001273",
-"title_key": "AI상보안현민멀티포우규민900경기출장",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.bloter.net/news/articleView.html?idxno=672638",
-"title_key": "KT에이전틱AI맞춤데이터체계구축AX플",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.edaily.co.kr/News/Read?newsId=04723206645576512&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
-"title_key": "BC카드서울10개지역상권활성화나섰다",
-"sent": "2026-09-04"
-},
-{
-"link": "http://www.wikileaks-kr.org/news/articleView.html?idxno=191622",
-"title_key": "카드NOWBC카드신한카드",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.newsis.com/view/NISX20260903_0003775129",
-"title_key": "서오릉AI순찰로봇시범운영뉴시스Pic",
-"sent": "2026-09-04"
-},
-{
-"link": "http://www.thevaluenews.co.kr/news/view.php?idx=201290",
-"title_key": "더밸류브리핑오늘의금융계소식KB국민은행",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.newsis.com/view/NISI20260903_0021421816",
-"title_key": "왕릉순찰위해도입될순찰로봇",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.newsis.com/view/NISI20260903_0021421817",
-"title_key": "시연화재감지한순찰로봇",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.edaily.co.kr/News/Read?newsId=02755206645576840&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
-"title_key": "DYPAI데이터센터휴머노이드로사업확대",
-"sent": "2026-09-04"
-},
-{
-"link": "https://www.news1.kr/industry/distribution/6279686",
-"title_key": "서울우유생성형AI브랜드지수우유부문1위",
-"sent": "2026-09-04"
-},
-{
 "link": "https://www.hankyung.com/article/2026090556327",
 "title_key": "제미나이믿고8시간산행했다가해발4000",
 "sent": "2026-09-05"
@@ -919,10 +784,126 @@
 "link": "https://www.etnews.com/20260911000019",
 "title_key": "AI인류멸망경고에美의회는규제국방부는종",
 "sent": "2026-09-11"
+},
+{
+"link": "https://www.fnnews.com/news/202609112218419482",
+"title_key": "삼성애플말고뭘사지빌리빈에게배우는머니볼",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.edaily.co.kr/News/Read?newsId=01784326645579464&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
+"title_key": "노을딥시크③또다가오는유증의그림자연말이",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.sedaily.com/article/20090085?ref=naver",
+"title_key": "지금명의전립선암수술대부분로봇으로요도성",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.mt.co.kr/tech/2026/09/12/2026090910445782817",
+"title_key": "AI적자OpenAI앤트로픽신용등급경쟁",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.hankyung.com/article/202609129941i",
+"title_key": "마이크로소프트의뒤늦은후회박신영의개장전",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.mt.co.kr/future/2026/09/11/2026091115054060259",
+"title_key": "클레로보틱스2026로보월드어워드수상글",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.mk.co.kr/article/12150676",
+"title_key": "범용휴머노이드도입보다산업특화된로봇이중",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.edaily.co.kr/News/Read?newsId=04424726645579136&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
+"title_key": "새모델출시한딥시크잰걸음대규모채용에자금",
+"sent": "2026-09-12"
+},
+{
+"link": "http://www.inews24.com/view/2004468",
+"title_key": "얼룩보자100도스팀칙LG로봇청소기로니",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.ddaily.co.kr/page/view/2026091110185005961",
+"title_key": "폴더블주도권경쟁폼팩터넘어칩까지삼성애플",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.newspim.com/news/view/20260911000921",
+"title_key": "아스트라효과④오픈AI의반격개시앤스로픽",
+"sent": "2026-09-12"
+},
+{
+"link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8661721&ref=A",
+"title_key": "앞서가는로봇국가였는데20년동안무슨일이",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.newsis.com/view/NISX20260912_0003786648",
+"title_key": "이란단체클로드이용해미군함정약점탐지",
+"sent": "2026-09-12"
+},
+{
+"link": "http://www.inews24.com/view/2004774",
+"title_key": "돈냈는데사용한도초과챗GPT클로드얼마나",
+"sent": "2026-09-12"
+},
+{
+"link": "https://it.chosun.com/news/articleView.html?idxno=2023092169969",
+"title_key": "애플은측정정확도삼성은건강분석스마트워치",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.newspim.com/news/view/20260911000927",
+"title_key": "中거인의공급망①AI서버강자낭조정보없으",
+"sent": "2026-09-12"
+},
+{
+"link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8661686&ref=A",
+"title_key": "AI설계로봇수행24시간자율실험실확산",
+"sent": "2026-09-12"
+},
+{
+"link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8661656&ref=A",
+"title_key": "이란연계단체앤트로픽AI로미국군함추적공",
+"sent": "2026-09-12"
+},
+{
+"link": "https://biz.chosun.com/science-chosun/science/2026/09/12/R7RTKUZEZFABDASSVMULACAIXE/?utm_source=naver&utm_medium=original&utm_campaign=biz",
+"title_key": "사이언스샷통통튀는달탐사충돌구에로봇공보",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.ddaily.co.kr/page/view/2026090816505541163",
+"title_key": "알쓸신기바닥에전선도없는데식당서빙로봇길",
+"sent": "2026-09-12"
+},
+{
+"link": "http://www.biztribune.co.kr/news/articleView.html?idxno=358856",
+"title_key": "KT서울아산병원과AI병원공동구축영상판",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.ytn.co.kr/_ln/0104_202609120842453836",
+"title_key": "미캘리포니아아동AI규제법제정위험감지되",
+"sent": "2026-09-12"
+},
+{
+"link": "https://www.ddaily.co.kr/page/view/2026091114592896884",
+"title_key": "한국석유공사132억투입해생성형AI플랫",
+"sent": "2026-09-12"
 }
 ],
 "quotes": [
 "설계도가 완벽해도, 첫 삽을 떠야 건물이 된다.",
-"기초를 깊게 파는 시간은 결코 낭비가 아니다."
+"기초를 깊게 파는 시간은 결코 낭비가 아니다.",
+"좋은 건물은 준공이 아니라, 사람이 드나들며 완성된다."
 ]
 }
