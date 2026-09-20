@@ -84,11 +84,24 @@ def save_history(cfg, prev_items, sent_items, quote=None):
         log(f"발송 이력 저장 실패: {e}")
 
 
+def unescape_entities(text, limit=3):
+    """HTML 엔티티를 더 바뀌지 않을 때까지(최대 limit회) 푼다.
+    일부 언론사가 제목을 '&amp;lsquo;' 처럼 이중 인코딩해 내보내는데,
+    한 번만 풀면 '&lsquo;' 가 남아 화면에 글자 그대로 찍힌다."""
+    t = text or ""
+    for _ in range(limit):
+        new = html.unescape(t)
+        if new == t:
+            break
+        t = new
+    return t
+
+
 def clean_text(text):
     if not text:
         return ""
     t = re.sub(r"<[^>]+>", "", text)
-    t = html.unescape(t)
+    t = unescape_entities(t)
     return re.sub(r"\s+", " ", t).strip()
 
 
@@ -179,7 +192,7 @@ def fetch_full_title(url, fallback):
         title = m.group(1)
         # <title> 흔한 접미사 제거: " - 매체명" / " | 매체명" 등
         title = re.sub(r"\s*[|\-–—:]\s*[^|\-–—:]{1,25}$", "", title)
-    return re.sub(r"\s+", " ", html.unescape(title)).strip() or fallback
+    return re.sub(r"\s+", " ", unescape_entities(title)).strip() or fallback
 
 
 def enrich_full_titles(items):
