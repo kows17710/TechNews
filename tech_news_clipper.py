@@ -44,9 +44,9 @@ def _read_history_raw():
         return {}
 
 
-def load_recent_quotes(limit=90):
-    """최근에 내보낸 '오늘의 한마디' 목록 — 같은 문장이 다시 나오지 않게 하는 데 쓴다."""
-    qs = _read_history_raw().get("quotes") or []
+def load_recent_idioms(limit=90):
+    """최근에 내보낸 '오늘의 사자성어' 목록 — 같은 성어가 다시 나오지 않게 하는 데 쓴다."""
+    qs = _read_history_raw().get("idioms") or []
     return [q for q in qs if isinstance(q, str) and q.strip()][-limit:]
 
 
@@ -58,9 +58,9 @@ def load_history():
     return links, titles, items
 
 
-def save_history(cfg, prev_items, sent_items, quote=None):
+def save_history(cfg, prev_items, sent_items, idiom=None):
     """발송한 기사들을 이력에 추가하고, 오래된 항목은 정리해 저장한다.
-    오늘 쓴 '한마디'도 함께 기록해 다음 회차에 같은 문장이 나오지 않게 한다."""
+    오늘 쓴 '사자성어'도 함께 기록해 다음 회차에 같은 성어가 나오지 않게 한다."""
     days = int(cfg["clipping"].get("historyDays", 7))
     today = datetime.now(KST).strftime("%Y-%m-%d")
     cutoff = (datetime.now(KST) - timedelta(days=days)).strftime("%Y-%m-%d")
@@ -72,10 +72,10 @@ def save_history(cfg, prev_items, sent_items, quote=None):
             existing.add(link)
     data = _read_history_raw()
     data["items"] = kept
-    if quote:
-        qs = [q for q in (data.get("quotes") or []) if isinstance(q, str) and q != quote]
-        qs.append(quote)
-        data["quotes"] = qs[-90:]
+    if idiom:
+        qs = [q for q in (data.get("idioms") or []) if isinstance(q, str) and q != idiom]
+        qs.append(idiom)
+        data["idioms"] = qs[-90:]
     try:
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=0)
@@ -563,26 +563,26 @@ WEEKDAY_MSG = {
     6: "일요일이에요. 편안하고 든든한 하루 보내세요.",
 }
 
-# 오늘의 한마디 (인생격언) — 날짜에 따라 하나씩 순환
-QUOTES = [
-    "\"시작이 반이다.\" — 아리스토텔레스",
-    "\"오늘 할 수 있는 일에 집중하라.\" — 파울로 코엘료",
-    "\"천 리 길도 한 걸음부터.\" — 노자",
-    "\"성공은 매일 반복한 작은 노력의 합이다.\" — 로버트 콜리어",
-    "\"할 수 있다고 믿으면 이미 절반은 이룬 것이다.\" — 시어도어 루스벨트",
-    "\"기회는 준비된 사람에게 온다.\" — 루이 파스퇴르",
-    "\"어제보다 나은 오늘이면 충분하다.\"",
-    "\"느리게 가도 괜찮다. 멈추지만 않는다면.\" — 공자",
-    "\"행동은 모든 성공의 기초다.\" — 파블로 피카소",
-    "\"작은 기회로부터 위대한 일이 시작된다.\" — 데모스테네스",
-    "\"가장 좋은 때는 바로 지금이다.\"",
-    "\"긍정적인 생각이 긍정적인 하루를 만든다.\"",
+# 오늘의 사자성어 폴백 — AI 생성이 실패했을 때만 쓴다 (성어, 뜻)
+IDIOMS = [
+    ("대기만성(大器晩成)", "큰 그릇은 늦게 완성된다. 크게 될 사람일수록 더디게 이루어진다."),
+    ("우공이산(愚公移山)", "우공이 산을 옮긴다. 꾸준히 하면 결국 큰일을 이룬다."),
+    ("적토성산(積土成山)", "흙이 쌓여 산이 된다. 작은 노력이 모여 큰 결과가 된다."),
+    ("유비무환(有備無患)", "준비가 있으면 근심이 없다. 미리 대비하면 걱정할 일이 없다."),
+    ("일취월장(日就月將)", "날로 나아가고 달로 발전한다. 실력이 꾸준히 늘어간다."),
+    ("초지일관(初志一貫)", "처음 뜻을 끝까지 밀고 간다. 마음먹은 바를 흔들림 없이 지킨다."),
+    ("절차탁마(切磋琢磨)", "옥을 자르고 갈듯 갈고닦는다. 학문과 실력을 끊임없이 연마한다."),
+    ("선견지명(先見之明)", "앞일을 미리 내다보는 지혜. 닥치기 전에 흐름을 읽는 안목."),
+    ("역지사지(易地思之)", "처지를 바꾸어 생각한다. 상대의 입장에서 헤아려 본다."),
+    ("호시우보(虎視牛步)", "호랑이의 눈으로 보고 소의 걸음으로 간다. 날카롭게 보되 우직하게 나아간다."),
+    ("교학상장(敎學相長)", "가르치고 배우며 함께 자란다. 주고받는 과정에서 서로 성장한다."),
+    ("과유불급(過猶不及)", "지나침은 모자람과 같다. 알맞은 정도를 넘으면 오히려 해가 된다."),
 ]
 
 
-def generate_daily_quote(cfg, recent):
-    """매일 새로운 '오늘의 한마디'를 Claude 로 만든다.
-    키가 없거나 실패하면 None 을 돌려주고, 호출부가 고정 격언으로 폴백한다."""
+def generate_daily_idiom(cfg, recent):
+    """매일 새로운 '오늘의 사자성어'를 Claude 로 만든다.
+    (성어, 뜻) 튜플을 돌려주고, 키가 없거나 실패하면 None → 호출부가 고정 목록으로 폴백."""
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         return None
@@ -593,22 +593,24 @@ def generate_daily_quote(cfg, recent):
 
     model = (cfg["clipping"].get("insight") or {}).get("model", "claude-opus-5")
     avoid = "\n".join(f"- {q}" for q in recent) or "(없음)"
-    system = "당신은 직장인 대상 아침 뉴스레터의 문구를 쓰는 카피라이터입니다."
+    system = "당신은 한자 성어에 밝은 한국어 뉴스레터 편집자입니다."
     prompt = (
         "부동산 개발·ICT 업계 직장인에게 보내는 아침 뉴스레터에 실을 "
-        "'오늘의 한마디'를 하나만 써 주세요. 규칙:\n"
-        "- 인생·일에 대한 짧은 격언 한 문장. 40자 이내.\n"
-        "- 실존 인물의 말을 인용하면 큰따옴표로 묶고 끝에 ' — 이름'을 붙인다. "
-        "출처가 확실하지 않으면 인용하지 말고 이름 없이 문장만 쓴다.\n"
-        "- 아래 문장들과 뜻이 겹치지 않게, 새로운 내용으로 쓴다:\n"
+        "'오늘의 사자성어'를 하나만 골라 주세요. 규칙:\n"
+        "- 실제로 존재하는 네 글자 한자 성어만 고른다. 지어내지 않는다.\n"
+        "- 출력 형식은 정확히 '한글독음(漢字) || 뜻풀이' 한 줄. 구분자는 반드시 ' || '.\n"
+        "- 뜻풀이는 60자 이내. 글자 그대로의 뜻을 먼저 쓰고, 이어서 어떤 뜻으로 쓰이는지 한 문장으로 덧붙인다.\n"
+        "- 일하는 사람에게 힘이 되거나 곱씹을 만한 성어로 고른다. 불길하거나 부정적인 성어는 피한다.\n"
+        "- 아래 성어들은 최근에 이미 썼으니 제외한다:\n"
         f"{avoid}\n"
-        "- 설명·서론·맺음말 없이 문장 한 줄만 출력."
+        "- 설명·서론·맺음말 없이 한 줄만 출력.\n"
+        "예시) 대기만성(大器晩成) || 큰 그릇은 늦게 완성된다. 크게 될 사람일수록 더디게 이루어진다."
     )
     try:
         client = anthropic.Anthropic(api_key=api_key)
         resp = client.messages.create(
             model=model,
-            max_tokens=300,
+            max_tokens=400,
             system=system,
             output_config={"effort": "low"},
             messages=[{"role": "user", "content": prompt}],
@@ -616,25 +618,29 @@ def generate_daily_quote(cfg, recent):
         text = "".join(b.text for b in resp.content if b.type == "text").strip()
         line = next((ln.strip() for ln in text.splitlines() if ln.strip()), "")
         line = re.sub(r"^\s*[-•*]\s*", "", line).strip()
-        if line and len(line) <= 120:
-            log(f"[한마디] AI 생성 완료: {line}")
-            return line
-        log("[한마디] AI 응답이 비었거나 너무 김 — 고정 격언 사용")
+        if "||" in line:
+            term, _, meaning = line.partition("||")
+            term, meaning = term.strip(), meaning.strip()
+            if term and meaning and len(term) <= 40 and len(meaning) <= 140:
+                log(f"[사자성어] AI 생성 완료: {term} — {meaning}")
+                return term, meaning
+        log("[사자성어] AI 응답 형식이 맞지 않음 — 고정 목록 사용")
         return None
     except Exception as e:
-        log(f"[한마디] AI 생성 실패: {e} — 고정 격언 사용")
+        log(f"[사자성어] AI 생성 실패: {e} — 고정 목록 사용")
         return None
 
 
-def daily_greeting(quote=None, recent=()):
+def daily_greeting(idiom=None, recent=()):
     now = datetime.now(KST)
     greeting = f"좋은 아침입니다! {WEEKDAY_MSG[now.weekday()]}"
-    if not quote:
-        # 폴백: 고정 격언 중 최근에 쓰지 않은 것을 우선 고른다
-        unused = [q for q in QUOTES if q not in set(recent)]
-        pool = unused or QUOTES
-        quote = pool[now.timetuple().tm_yday % len(pool)]
-    return greeting, quote
+    if not idiom:
+        # 폴백: 고정 목록 중 최근에 쓰지 않은 것을 우선 고른다
+        used = set(recent)
+        unused = [it for it in IDIOMS if it[0] not in used]
+        pool = unused or IDIOMS
+        idiom = pool[now.timetuple().tm_yday % len(pool)]
+    return greeting, idiom
 
 
 def generate_ai_insight(cfg, articles, insights):
@@ -700,7 +706,7 @@ def generate_ai_insight(cfg, articles, insights):
         return None
 
 
-def build_html(cfg, articles, insights=None, insight_text=None, quote=None, recent_quotes=()):
+def build_html(cfg, articles, insights=None, insight_text=None, idiom=None, recent_idioms=()):
     e = html.escape
     today = datetime.now(KST).strftime("%Y년 %m월 %d일")
     n = len(articles)
@@ -716,7 +722,7 @@ def build_html(cfg, articles, insights=None, insight_text=None, quote=None, rece
     C_HEAD = "#c9c9c9"   # 회색 헤더
     C_SUB = "#e9e9e9"    # 카테고리 소제목
     B = "1px solid #000000"
-    greeting, quote = daily_greeting(quote, recent_quotes)
+    greeting, (idiom_term, idiom_meaning) = daily_greeting(idiom, recent_idioms)
 
     parts = [f"""<html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -740,7 +746,7 @@ def build_html(cfg, articles, insights=None, insight_text=None, quote=None, rece
 
   <div style="padding:2px 2px 4px 2px;margin:0 0 12px 0;">
     <div class="t-head" style="font-family:{F_BOLD};font-size:15px;color:#12263f;">{greeting}</div>
-    <div style="font-family:{F_THIN};font-size:14px;color:#555555;margin-top:6px;">오늘의 한마디 — {quote}</div>
+    <div style="font-family:{F_THIN};font-size:14px;color:#555555;margin-top:6px;">오늘의 사자성어 — <span style="font-family:{F_BOLD};color:#12263f;">{e(idiom_term)}</span> &nbsp;{e(idiom_meaning)}</div>
   </div>
 
   <div class="t-head" style="font-size:18px;font-family:{F_BOLD};margin:6px 0 10px 0;">○ 부동산 개발 ICT 테크 뉴스 스크랩</div>
@@ -914,12 +920,12 @@ def main():
     # (insights 는 메일에 나오지 않는 별도 검색 결과라, 재료로 쓰면
     #  본문에 없는 주제가 인사이트에만 반복 등장한다 — 폴백 용도로만 유지)
     insight_text = generate_ai_insight(cfg, articles, None)
-    # 오늘의 한마디: 매일 새 문장을 생성하고, 최근에 쓴 문장은 피한다
-    recent_quotes = load_recent_quotes()
-    quote = generate_daily_quote(cfg, recent_quotes)
-    if not quote:
-        _, quote = daily_greeting(None, recent_quotes)
-    body = build_html(cfg, articles, insights, insight_text, quote, recent_quotes)
+    # 오늘의 사자성어: 매일 새로 고르고, 최근에 쓴 성어는 피한다
+    recent_idioms = load_recent_idioms()
+    idiom = generate_daily_idiom(cfg, recent_idioms)
+    if not idiom:
+        _, idiom = daily_greeting(None, recent_idioms)
+    body = build_html(cfg, articles, insights, insight_text, idiom, recent_idioms)
     subject = f"{cfg['mail']['subjectPrefix']} {datetime.now(KST):%Y-%m-%d} ({len(articles)}건)"
 
     if os.environ.get("PREVIEW") == "1":
@@ -938,7 +944,7 @@ def main():
 
     # 발송 성공 후, 이번에 보낸 기사들을 이력에 추가
     sent = [(a["link"], title_key(a["title"])) for a in (articles + insights)]
-    save_history(cfg, hist_items, sent, quote)
+    save_history(cfg, hist_items, sent, idiom[0])
 
 
 if __name__ == "__main__":
