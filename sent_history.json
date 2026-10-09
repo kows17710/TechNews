@@ -1,186 +1,6 @@
 {
 "items": [
 {
-"link": "https://www.fnnews.com/news/202610010853509078",
-"title_key": "현대차그룹고속도로를미래차실험실로충전피",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.edaily.co.kr/News/Read?newsId=02794566645608656&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
-"title_key": "KTAI기반의료표준모델공개진료부터경영",
-"sent": "2026-10-01"
-},
-{
-"link": "https://magazine.hankyung.com/business/article/202610016415b",
-"title_key": "너무위험해서봉인구글차세대AI제미나이4",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.thelec.kr/news/articleView.html?idxno=63065",
-"title_key": "40년자동화장인SFA가밝힌AI로보틱스",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.sedaily.com/article/20096806?ref=naver",
-"title_key": "2조弗앤트로픽아마존구글서매출절반쏠렸다",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.sedaily.com/article/20096800?ref=naver",
-"title_key": "딥시크화웨이와AI칩협력엔비디아의존도낮",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.sedaily.com/article/20096717?ref=naver",
-"title_key": "챗GPT또먹통같은날앤트로픽클로드도장애",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.edaily.co.kr/News/Read?newsId=04854406645585368&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
-"title_key": "딥시크키미잘나가는이유있네중국인절반은이",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.newspim.com/news/view/20261001000057",
-"title_key": "모닝리포트현대모비스램프매각해전장로봇에",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.newspim.com/news/view/20261001000037",
-"title_key": "미국특징주구글제미나이4아스트라공개사내",
-"sent": "2026-10-01"
-},
-{
-"link": "https://sports.donga.com/region/article/all/20261001/134764998/1",
-"title_key": "포항로봇국가첨단전략산업특화단지최종지정",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.yna.co.kr/view/PYH20261001024100013?input=1196m",
-"title_key": "삼성전자JBL80주년기념특별기획전선봬",
-"sent": "2026-10-01"
-},
-{
-"link": "https://zdnet.co.kr/view/?no=20261001083835",
-"title_key": "도어대시애플메시지서음식주문하는AI공개",
-"sent": "2026-10-01"
-},
-{
-"link": "https://biz.chosun.com/stock/stock_general/2026/10/01/X7LUPGYMMZHHBDZNF4WEMHGXII/?utm_source=naver&utm_medium=original&utm_campaign=biz",
-"title_key": "삼성전자SK하이닉스3분기영업익190조",
-"sent": "2026-10-01"
-},
-{
-"link": "https://zdnet.co.kr/view/?no=20261001081725",
-"title_key": "애플스마트홈허브도준비아이맥G4닮았네",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.yna.co.kr/view/AKR20261001023800009?input=1195m",
-"title_key": "아마존콘스텔레이션과원전전력20년공급계",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.dt.co.kr/article/12086848?ref=naver",
-"title_key": "구글침묵깨고제미나이4아르곤선봬보안파트",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.cstimes.com/news/articleView.html?idxno=722527",
-"title_key": "SKT카카오KT10월중모두의AI첫선전",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.ytn.co.kr/_ln/0104_202610010817561485",
-"title_key": "구글최상위AI제미나이4공개일반접근은제",
-"sent": "2026-10-01"
-},
-{
-"link": "https://news.dealsitetv.com/articles/176414",
-"title_key": "KT아픈손가락KTcsAI전환외쳤지만수",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.chosun.com/economy/tech_it/2026/10/01/HRIIFPVE3VFJXOATNQVDDJHL34/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
-"title_key": "KT마이케이티앱AI플랫폼으로개편",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.newspim.com/news/view/20260930001358",
-"title_key": "AI상보힐리어드40호포권동진9회결승포",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.ytn.co.kr/_ln/0103_202609301829254777",
-"title_key": "경기고양순찰로봇폴리봇에화분20여개파손",
-"sent": "2026-10-01"
-},
-{
-"link": "http://www.yonhapnewstv.co.kr/news/AKR202609301811430NG",
-"title_key": "사고치고독방행경찰순찰로봇테이블들이받아",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.newspim.com/news/view/20260930001271",
-"title_key": "세종시스마트시티리빙랩운영시민주도도시문",
-"sent": "2026-10-01"
-},
-{
-"link": "http://www.wikileaks-kr.org/news/articleView.html?idxno=192653",
-"title_key": "카드NOW삼성카드BC카드",
-"sent": "2026-10-01"
-},
-{
-"link": "http://www.newslock.co.kr/news/articleView.html?idxno=137209",
-"title_key": "BC카드에이투디투와맞손법률AI로준법업",
-"sent": "2026-10-01"
-},
-{
-"link": "http://www.thefirstmedia.net/news/articleView.html?idxno=209799",
-"title_key": "BC카드계약서검토광고심의에AI적용한다",
-"sent": "2026-10-01"
-},
-{
-"link": "https://zdnet.co.kr/view/?no=20260930154942",
-"title_key": "개발넘어운영까지유라클KT스카이라이프에",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.news1.kr/photos/8135035",
-"title_key": "산학연협력으로탄생한AI지능형로봇팔",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.news1.kr/photos/8135036",
-"title_key": "스스로움직이는AI로봇팔",
-"sent": "2026-10-01"
-},
-{
-"link": "http://www.thevaluenews.co.kr/news/view.php?idx=201962",
-"title_key": "더밸류브리핑오늘의카드소식BC카드티머니",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.financialpost.co.kr/news/articleView.html?idxno=277987",
-"title_key": "BC카드A2D2와법률AI플랫폼구축맞손",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.fnnews.com/news/202610010840535423",
-"title_key": "현대차고객아이디어로車앱만든다생성형AI",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.etnews.com/20261001000034",
-"title_key": "빌게이츠AI자율규제는미친짓정부안전장치",
-"sent": "2026-10-01"
-},
-{
-"link": "https://www.dt.co.kr/article/12086851?ref=naver",
-"title_key": "LG전자美칠러공장신설AI데이터센터냉각",
-"sent": "2026-10-01"
-},
-{
 "link": "https://www.etnews.com/20261002000021",
 "title_key": "유라클제조AI통합관제탑만든다피지컬AI",
 "sent": "2026-10-02"
@@ -1264,6 +1084,106 @@
 "link": "https://www.dt.co.kr/article/12088076?ref=naver",
 "title_key": "웨인힐스브라이언트에이아이USA창립10",
 "sent": "2026-10-08"
+},
+{
+"link": "https://www.etnews.com/20261009000007",
+"title_key": "엔비디아넘어선분기영업익100조삼성전자",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.sedaily.com/article/20099602?ref=naver",
+"title_key": "도축장에서로봇이칼잡는다북미시장도정조준",
+"sent": "2026-10-09"
+},
+{
+"link": "https://view.asiae.co.kr/article/2026100816305016981",
+"title_key": "AI세계속으로AI로쓴글입니다챗GPT클",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.mk.co.kr/article/12171740",
+"title_key": "엄마내그림이움직여요AI동화만들어주는K",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.edaily.co.kr/News/Read?newsId=03827766645610952&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
+"title_key": "워크온파트너스공유오피스운영플랫폼리뉴얼",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.dt.co.kr/article/12088178?ref=naver",
+"title_key": "매출27조부풀려졌다오픈AI실적쇼크에A",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.newsis.com/view/NISX20261008_0003819292",
+"title_key": "車넘어로봇으로6년전승부수피지컬AI로결",
+"sent": "2026-10-09"
+},
+{
+"link": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008790141&plink=ORI&cooper=NAVER",
+"title_key": "미국서사람vs로봇격투경기즉각중단명령에",
+"sent": "2026-10-09"
+},
+{
+"link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8681616&ref=A",
+"title_key": "삼성전자분기영업이익107조연간350조",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.ddaily.co.kr/page/view/2026100809230287911",
+"title_key": "25년하드웨어장인이랬는데존터너스애플C",
+"sent": "2026-10-09"
+},
+{
+"link": "https://imnews.imbc.com/replay/2026/nwtoday/article/6856743_37012.html",
+"title_key": "와글와글분실물찾아라물속누비는로봇물고기",
+"sent": "2026-10-09"
+},
+{
+"link": "https://biz.chosun.com/industry/company/2026/10/09/NY656BXQZZD7JGSRPCMQM3NP4E/?utm_source=naver&utm_medium=original&utm_campaign=biz",
+"title_key": "조립끝나자마자스스로걸어나온휴머노이드車",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.newspim.com/news/view/20261009000019",
+"title_key": "美마이크로소프트등일부기업영주권신청중단",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.joongang.co.kr/article/25468372",
+"title_key": "단독걸어다니는로봇청소기냐450억투입할",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.kmib.co.kr/article/view.asp?arcid=9000021141&cp=nv",
+"title_key": "해킹범은中광둥성거주26세클로드에이력서",
+"sent": "2026-10-09"
+},
+{
+"link": "http://www.bizwnews.com/news/articleView.html?idxno=148435",
+"title_key": "금융HOT뉴스BC카드ChatGPT통한",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.seoul.co.kr/news/publicnews/local_govern/kyungki_do/2026/10/08/20261008500253?wlog_tag3=naver",
+"title_key": "김미숙부의장웨어러블로봇사람을위한기술로",
+"sent": "2026-10-09"
+},
+{
+"link": "http://www.popcornnews.net/news/articleView.html?idxno=135451",
+"title_key": "SKT통신AI잇는성장기어전략발표KT는",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.news1.kr/local/incheon/6313990",
+"title_key": "순찰로봇부터대테러장비까지21일송도서국",
+"sent": "2026-10-09"
+},
+{
+"link": "https://www.newspim.com/news/view/20261008001152",
+"title_key": "GAM오라클이드러낸AI복병전력인허가첩",
+"sent": "2026-10-09"
 }
 ],
 "quotes": [
@@ -1297,6 +1217,7 @@
 "호시우보(虎視牛步)",
 "일취월장(日就月將)",
 "근고지영(根固枝榮)",
-"우공이산(愚公移山)"
+"우공이산(愚公移山)",
+"괄목상대(刮目相對)"
 ]
 }
